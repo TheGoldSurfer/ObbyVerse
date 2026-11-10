@@ -83,7 +83,7 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
         <button class="primary" id="shopBtn">🥚 EGG SHOP</button>
         <button class="secondary" id="petsBtn">🐾 MY PETS</button>
       </div>
-      <p class="note" style="margin-top:22px">Early prototype · More worlds, pets, eggs, quests and multiplayer are planned!</p>
+      <p class="note" style="margin-top:22px">Explore 7 colourful worlds, hatch pets and conquer every obby!</p>
     </section>
     <section class="panel hidden" id="levels">
       <h2>🗺️ Choose a level</h2>
@@ -187,8 +187,8 @@ function savePets(){localStorage.setItem("obbyversePets",JSON.stringify(petBook)
 function boostsForPet(p){return p?boostByRarity[p.rarity]:{coins:0,xp:0,speed:0};}
 function updateCoins(){ $("coinPill").textContent="🪙 "+coins+" coins · ⭐ "+xp+" XP"; $("coinHud").textContent="🪙 "+(coins+levelCoins); }
 function renderEggShop(){
- const grid=$("eggShop");grid.innerHTML="";
- eggWorlds.forEach((egg,i)=>{const b=document.createElement("button");b.className="level-card open";b.innerHTML="<b>"+egg.emoji+" "+egg.name+"</b><small>🪙 "+egg.price.toLocaleString()+" · 7 pets</small>";b.addEventListener("click",()=>hatchEgg(i));grid.appendChild(b);});
+ const grid=$("eggShop");grid.innerHTML="";const required=[0,4,7,10,13,16,19];
+ eggWorlds.forEach((egg,i)=>{const open=unlocked>=required[i];const b=document.createElement("button");b.className="level-card "+(open?"open":"");b.disabled=!open;b.innerHTML="<b>"+egg.emoji+" "+egg.name+"</b><small>"+(open?"🪙 "+egg.price.toLocaleString()+" · 7 pets":"🔒 Unlock "+stages[required[i]].name)+"</small>";if(open)b.addEventListener("click",()=>hatchEgg(i));grid.appendChild(b);});
 }
 function renderPets(){
  const grid=$("petGrid");grid.innerHTML="";$("petSummary").textContent=petBook.length+" / 49 pets discovered · "+(equippedPet?"1 equipped":"No pet equipped");
@@ -224,12 +224,36 @@ const stages = [
  {name:"Bouncy Bridges",world:"Heaven's Heights",width:1900,spawn:[60,390],goal:1790,platforms:[[0,480,290],[360,480,190],[660,480,210],[990,480,180],[1280,480,210],[1580,480,320],[260,400,100],[440,350,105],[605,395,100],[790,335,110],[955,390,100],[1140,335,110],[1450,390,100],[1660,345,105]],spikes:[[395,460,75,20],[695,460,72,20],[1025,460,75,20],[1320,460,70,20],[1620,460,70,20]],coinSpots:[[125,430],[295,355],[490,305],[650,350],[840,290],[1005,345],[1190,290],[1500,345],[1710,300]],checkpoint:990},
  {name:"Rainbow Run",world:"Heaven's Heights",width:2050,spawn:[60,390],goal:1940,platforms:[[0,480,300],[370,480,210],[690,480,180],[980,480,210],[1290,480,190],[1590,480,460],[270,400,100],[450,345,100],[630,390,100],[810,330,100],[1090,385,105],[1235,330,100],[1450,385,100],[1690,345,110],[1840,400,100]],spikes:[[405,460,70,20],[725,460,70,20],[1020,460,70,20],[1330,460,70,20],[1635,460,70,20]],coinSpots:[[140,430],[305,355],[495,300],[675,345],[855,285],[1135,340],[1280,285],[1495,340],[1740,300],[1885,355]],checkpoint:1290}
 ];
+const worldSpecs=[
+{name:"Inferno",theme:"inferno",width:1900,ground:"#ff9a62",top:"#ffcc76",hazard:"#d94d5c",sky:["#ffb078","#ffe0a6","#fff1d2"]},
+{name:"Frozen",theme:"frozen",width:1950,ground:"#8bdcf4",top:"#d5f8ff",hazard:"#6699e8",sky:["#9de7ff","#d9f7ff","#ffffff"]},
+{name:"Void",theme:"void",width:2050,ground:"#7965bd",top:"#c0a4ff",hazard:"#ff79b7",sky:["#403b83","#7970c9","#d8caff"]},
+{name:"Ancient",theme:"ancient",width:2000,ground:"#c99a58",top:"#f4d28a",hazard:"#9b6544",sky:["#f5cf83","#ffe9b5","#fff7d9"]},
+{name:"Ascension",theme:"ascension",width:2100,ground:"#73c8e8",top:"#b5f5ff",hazard:"#8874ed",sky:["#7bc9ff","#c7eaff","#fff3ff"]},
+{name:"Prism",theme:"prism",width:2200,ground:"#b68bfa",top:"#ffcae8",hazard:"#ff8bba",sky:["#ffb8df","#c7c5ff","#a8ecff"]}
+];
+function makeWorldStage(spec,levelNo){
+ const width=spec.width+(levelNo-1)*130,platforms=[[0,480,300]],spikes=[],coinSpots=[[130,430]];
+ const count=8+levelNo;
+ for(let i=1;i<count;i++){
+  const x=170+i*145+(i%2)*25;
+  const ys=levelNo===1?[410,360,400,345]:levelNo===2?[390,330,405,350,370]:[350,405,325,385,340];
+  const y=ys[i%ys.length];
+  platforms.push([x,y,105+(i%3)*12]);
+  if(i%2===0)spikes.push([x+115,460,42+(i%2)*12,20]);
+  coinSpots.push([x+48,y-38]);
+  if(i%3===0)platforms.push([x+68,y-75,78]);
+ }
+ platforms.push([width-230,480,230]);
+ return {name:spec.name+" "+["I","II","III"][levelNo-1],world:spec.name,theme:spec.theme,width,spawn:[55,390],goal:width-75,platforms,spikes,coinSpots,checkpoint:Math.floor(width*.53),colors:spec};
+}
+worldSpecs.forEach(spec=>{for(let level=1;level<=3;level++)stages.push(makeWorldStage(spec,level));});
 function showPanel(id){panels.forEach(p=>$(p).classList.toggle("hidden",p!==id));}
 function updateCoins(){ $("coinPill").textContent="🪙 "+coins+" coins"; $("coinHud").textContent="🪙 "+(coins+levelCoins); }
 function save(){localStorage.setItem("obbyverseCoins",String(coins));localStorage.setItem("obbyverseUnlocked",String(unlocked));}
 function renderLevelGrid(){
  const grid=$("levelGrid");grid.innerHTML="";
- const entries=[{name:"Tutorial",idx:0},...Array.from({length:20},(_,i)=>({name:"Level "+(i+1),idx:i+1}))];
+ const entries=[{name:"Tutorial",idx:0},...Array.from({length:stages.length-1},(_,i)=>({name:stages[i+1].name,idx:i+1}))];
  entries.forEach(e=>{
   const playable=e.idx<stages.length,open=e.idx<=unlocked;
   const b=document.createElement("button");b.className="level-card "+(open&&playable?"open":"");b.disabled=!open||!playable;
@@ -247,7 +271,7 @@ function showMessage(title,text,emoji,buttons){
 function startStage(index){
  currentStage=index;world=structuredClone(stages[index]);player={x:world.spawn[0],y:world.spawn[1],w:34,h:42,vx:0,vy:0,ground:false,face:1};
  cameraX=0;falls=0;levelCoins=0;collected=new Set();particles=[];gameRunning=true;
- $("stageLabel").textContent=(index===0?"🎓 ":"☁️ ")+world.name;
+ const icons={inferno:"🌋",frozen:"❄️",void:"🌌",ancient:"🏛️",ascension:"⚡",prism:"🌈"};$("stageLabel").textContent=(index===0?"🎓 ":(icons[world.theme]||"☁️ ")) + world.name;
  $("deathHud").textContent="💫 Falls: 0";updateCoins();showPanel("gameWrap");
  cancelAnimationFrame(raf);lastTime=performance.now();draw();raf=requestAnimationFrame(loop);
  if(world.tips){let tip=world.tips[0];showMessage("Welcome to ObbyVerse!",tip,"🎮",[{label:"LET'S GO!",primary:true,action:()=>{}}]);}
@@ -297,7 +321,7 @@ function completeStage(){
 function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();}
 function draw(){
  ctx.clearRect(0,0,W,H);
- const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,"#69d2ff");sky.addColorStop(.72,"#c8f5ff");sky.addColorStop(1,"#f3ffff");ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+ const palette=world.colors||{ground:"#75d69a",top:"#a878e9",hazard:"#ff709f",sky:["#69d2ff","#c8f5ff","#f3ffff"]};const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,palette.sky[0]);sky.addColorStop(.72,palette.sky[1]);sky.addColorStop(1,palette.sky[2]);ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
  // distant candy-coloured islands
  for(let i=0;i<7;i++){const x=((i*245-cameraX*.22)%(W+260)+W+260)%(W+260)-100;rounded(x,380+(i%3)*24,180,85,40,["#b6f0db","#c7c5ff","#ffe3a0"][i%3]);rounded(x+20,400+(i%3)*24,140,55,24,["#79d9ba","#9c91ed","#f5c96d"][i%3]);}
  // clouds
@@ -305,9 +329,9 @@ function draw(){
  // portal glow
  const gx=world.goal-cameraX;const glow=ctx.createRadialGradient(gx,365,4,gx,365,90);glow.addColorStop(0,"#fff8c8aa");glow.addColorStop(1,"#fff8c800");ctx.fillStyle=glow;ctx.fillRect(gx-100,260,200,220);
  // platforms
- for(const p of world.platforms){const x=p[0]-cameraX,y=p[1],w=p[2];if(x+w<-20||x>W+20)continue;rounded(x,y,w,22,8,"#75d69a");rounded(x,y+9,w,17,6,"#a878e9");ctx.fillStyle="#ffffff88";for(let k=12;k<w-8;k+=34){ctx.beginPath();ctx.arc(x+k,y+4,3,0,Math.PI*2);ctx.fill();}}
+ for(const p of world.platforms){const x=p[0]-cameraX,y=p[1],w=p[2];if(x+w<-20||x>W+20)continue;rounded(x,y,w,22,8,palette.ground);rounded(x,y+9,w,17,6,palette.top);ctx.fillStyle="#ffffff88";for(let k=12;k<w-8;k+=34){ctx.beginPath();ctx.arc(x+k,y+4,3,0,Math.PI*2);ctx.fill();}}
  // spikes
- for(const s of world.spikes){const x=s[0]-cameraX,y=s[1],w=s[2];ctx.fillStyle="#ff709f";for(let k=0;k<w;k+=23){ctx.beginPath();ctx.moveTo(x+k,y+20);ctx.lineTo(x+k+11.5,y-2);ctx.lineTo(x+k+23,y+20);ctx.closePath();ctx.fill();ctx.strokeStyle="#e34f86";ctx.lineWidth=2;ctx.stroke();}}
+ for(const s of world.spikes){const x=s[0]-cameraX,y=s[1],w=s[2];ctx.fillStyle=palette.hazard;for(let k=0;k<w;k+=23){ctx.beginPath();ctx.moveTo(x+k,y+20);ctx.lineTo(x+k+11.5,y-2);ctx.lineTo(x+k+23,y+20);ctx.closePath();ctx.fill();ctx.strokeStyle=palette.hazard;ctx.lineWidth=2;ctx.stroke();}}
  // coins
  world.coinSpots.forEach((c,i)=>{if(collected.has(i))return;const x=c[0]-cameraX,y=c[1];ctx.fillStyle="#ffcf45";ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#fff4a6";ctx.lineWidth=3;ctx.stroke();ctx.fillStyle="#fff";ctx.font="bold 12px system-ui";ctx.textAlign="center";ctx.fillText("$",x,y+4);});
  // checkpoint flag
