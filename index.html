@@ -204,7 +204,7 @@ function savePets(){localStorage.setItem("obbyversePets",JSON.stringify(petBook)
 function boostsForPet(p){return p?boostByRarity[p.rarity]:{coins:0,xp:0,speed:0};}
 function updateCoins(){ $("coinPill").textContent="🪙 "+coins+" coins · ⭐ "+xp+" XP"; $("coinHud").textContent="🪙 "+(coins+levelCoins); }
 function renderEggShop(){
- const grid=$("eggShop");grid.innerHTML="";const required=[0,4,9,14,19,24,29,34];
+ const grid=$("eggShop");grid.innerHTML="";const required=[0,6,11,16,21,26,31,36];
  eggWorlds.forEach((egg,i)=>{const open=unlocked>=required[i];const b=document.createElement("button");b.className="level-card "+(open?"open":"");b.disabled=!open;b.innerHTML="<b>"+egg.emoji+" "+egg.name+"</b><small>"+(open?"🪙 "+egg.price.toLocaleString()+" · 8 pets":"🔒 Unlock "+stages[required[i]].name)+"</small>";if(open)b.addEventListener("click",()=>hatchEgg(i));grid.appendChild(b);});
 }
 function renderPets(){
@@ -270,6 +270,8 @@ function makeWorldStage(spec,levelNo){
  platforms.push([width-230,480,230]);
  return {name:spec.name+" "+["I","II","III","IV","V"][levelNo-1],world:spec.name,theme:spec.theme,width,spawn:[55,390],goal:width-75,platforms,spikes,coinSpots,checkpoint:Math.floor(width*.53),colors:spec};
 }
+const heavenSpec={name:"Heaven's Heights",theme:"heaven",width:1800,ground:"#8ddfca",top:"#d5fff0",hazard:"#ff8db4",sky:["#83dfff","#d9f7ff","#ffffff"]};
+stages.push(makeWorldStage(heavenSpec,4),makeWorldStage(heavenSpec,5));
 worldSpecs.forEach(spec=>{for(let level=1;level<=5;level++)stages.push(makeWorldStage(spec,level));});
 function showPanel(id){panels.forEach(p=>$(p).classList.toggle("hidden",p!==id));}
 function updateCoins(){ $("coinPill").textContent="🪙 "+coins+" coins · ⭐ "+xp+" XP"; $("coinHud").textContent="🪙 "+(coins+levelCoins); }
