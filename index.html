@@ -343,7 +343,7 @@ $("levelsBtn").addEventListener("click",()=>{renderLevelGrid();showPanel("levels
 $("howBtn").addEventListener("click",()=>showPanel("how"));
 $("levelsBack").addEventListener("click",menu);$("howBack").addEventListener("click",menu);$("pauseBtn").addEventListener("click",()=>{menu();});
 $("skipLoad").addEventListener("click",()=>{$("loading").classList.add("hidden");});
-updateCoins();renderLevelGrid();
+activePetBoost=boostsForPet(petData(equippedPet));showPanel("menu");updateCoins();renderLevelGrid();renderEggShop();renderPets();
 if(!localStorage.getItem("obbyverseVisited")){$("loading").classList.remove("hidden");localStorage.setItem("obbyverseVisited","yes");setTimeout(()=>$("loading").classList.add("hidden"),2600);}
 })();
 </script>
