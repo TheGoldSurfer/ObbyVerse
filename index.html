@@ -133,7 +133,7 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
       <div class="gamebar">
         <span class="hud" id="stageLabel">☁️ Tutorial</span>
         <span class="hud" id="coinHud">🪙 0</span>
-        <span class="hud" id="deathHud">💫 Falls: 0</span>
+        <span class="hud" id="deathHud">💫 Falls: 0</span><span class="hud" id="timerHud">⏱️ 0.0s</span>
         <button class="secondary small" id="pauseBtn">Ⅱ MENU</button>
       </div>
       <canvas id="gameCanvas" width="960" height="540" aria-label="ObbyVerse platform game"></canvas>
@@ -183,7 +183,7 @@ let claimedQuests=JSON.parse(localStorage.getItem("obbyverseClaimed")||"[]");
  let rebirths=Number(localStorage.getItem("obbyverseRebirths")||0),lastDaily=localStorage.getItem("obbyverseDaily")||"",dailyStreak=Number(localStorage.getItem("obbyverseDailyStreak")||0);
  let redeemedCodes=JSON.parse(localStorage.getItem("obbyverseCodes")||"[]"),ownedTrails=JSON.parse(localStorage.getItem("obbyverseTrails")||"[\"none\"]"),equippedTrail=localStorage.getItem("obbyverseTrail")||"none";
  let totalFalls=Number(localStorage.getItem("obbyverseTotalFalls")||0),trailTick=0;
-let soundEnabled=localStorage.getItem("obbyverseSound")!=="off",reducedEffects=localStorage.getItem("obbyverseEffects")==="reduced",audioContext=null,stageStartedAt=0;
+let soundEnabled=localStorage.getItem("obbyverseSound")!=="off",reducedEffects=localStorage.getItem("obbyverseEffects")==="reduced",audioContext=null,stageStartedAt=0;let lastTimerPaint=0;
 let bestTimes=JSON.parse(localStorage.getItem("obbyverseBestTimes")||"{}");
 let activePetBoost = {coins:0,xp:0,speed:0};
 const rarityOdds = [{name:"Common",chance:44.8955},{name:"Uncommon",chance:26.9973},{name:"Rare",chance:15.9984},{name:"Epic",chance:7.9992},{name:"Legendary",chance:3.4997},{name:"Mythic",chance:.4999},{name:"Secret",chance:.01},{name:"Divine",chance:.1}];
@@ -321,7 +321,7 @@ function startStage(index){
  currentStage=index;stageStartedAt=performance.now();world=structuredClone(stages[index]);player={x:world.spawn[0],y:world.spawn[1],w:34,h:42,vx:0,vy:0,ground:false,face:1};
  cameraX=0;falls=0;levelCoins=0;collected=new Set();particles=[];gameRunning=true;
  const icons={inferno:"🌋",frozen:"❄️",void:"🌌",ancient:"🏛️",ascension:"⚡",prism:"🌈",secret:"👑"};$("stageLabel").textContent=(index===0?"🎓 ":(icons[world.theme]||"☁️ ")) + world.name;
- $("deathHud").textContent="💫 Falls: 0";updateCoins();showPanel("gameWrap");
+ $("deathHud").textContent="💫 Falls: 0";$("timerHud").textContent="⏱️ 0.0s";lastTimerPaint=0;updateCoins();showPanel("gameWrap");
  cancelAnimationFrame(raf);lastTime=performance.now();draw();raf=requestAnimationFrame(loop);
  if(world.tips){let tip=world.tips[0];showMessage("Welcome to ObbyVerse!",tip,"🎮",[{label:"LET'S GO!",primary:true,action:()=>{}}]);}
 }
@@ -335,7 +335,7 @@ function playTone(freq=660,duration=.07){if(!soundEnabled)return;try{const AC=wi
 function refreshSettings(){$("soundToggle").innerHTML="<b>"+(soundEnabled?"🔊 Sound: ON":"🔇 Sound: OFF")+"</b><small>Toggle game sound effects</small>";$("effectsToggle").innerHTML="<b>"+(reducedEffects?"🍃 Effects: REDUCED":"✨ Effects: ON")+"</b><small>Reduce particles for a calmer game</small>";}
 function burst(x,y,color,n){if(reducedEffects)n=Math.max(1,Math.ceil(n*.25));for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*5,vy:(Math.random()-.8)*5,life:35,color});}
 function loop(now){
- if(!gameRunning)return;const dt=Math.min(2,(now-lastTime)/16.67||1);lastTime=now;update(dt);draw();raf=requestAnimationFrame(loop);
+ if(!gameRunning)return;const dt=Math.min(2,(now-lastTime)/16.67||1);lastTime=now;if(now-lastTimerPaint>100){$("timerHud").textContent="⏱️ "+((now-stageStartedAt)/1000).toFixed(1)+"s";lastTimerPaint=now;}update(dt);draw();raf=requestAnimationFrame(loop);
 }
 function update(dt){
  const speed=4.2*(1+(activePetBoost.speed||0)/100)*(1+(upgradeLevels.speed||0)*.06);
