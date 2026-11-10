@@ -176,7 +176,7 @@ function startStage(index){
  cameraX=0;falls=0;levelCoins=0;collected=new Set();particles=[];gameRunning=true;
  $("stageLabel").textContent=(index===0?"🎓 ":"☁️ ")+world.name;
  $("deathHud").textContent="💫 Falls: 0";updateCoins();showPanel("gameWrap");
- cancelAnimationFrame(raf);lastTime=performance.now();raf=requestAnimationFrame(loop);
+ cancelAnimationFrame(raf);lastTime=performance.now();draw();raf=requestAnimationFrame(loop);
  if(world.tips){let tip=world.tips[0];showMessage("Welcome to ObbyVerse!",tip,"🎮",[{label:"LET'S GO!",primary:true,action:()=>{}}]);}
 }
 function respawn(){
