@@ -76,7 +76,7 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
       <div class="world-banner"><strong>HEAVEN'S HEIGHTS</strong><span>Your first big adventure awaits!</span></div>
       <div class="buttonrow">
         <button class="primary" id="playBtn">▶ PLAY</button>
-        <button class="secondary" id="dailyBtn">🎁 DAILY REWARD</button><button class="purple" id="codesBtn">🎟️ REDEEM CODE</button><button class="secondary" id="rebirthBtn">🌟 REBIRTH</button><button class="purple" id="trailsBtn">✨ TRAILS</button><button class="secondary" id="statsBtn">📊 STATS</button>
+        <button class="secondary" id="dailyBtn">🎁 DAILY REWARD</button><button class="purple" id="codesBtn">🎟️ REDEEM CODE</button><button class="secondary" id="rebirthBtn">🌟 REBIRTH</button><button class="purple" id="trailsBtn">✨ TRAILS</button><button class="secondary" id="statsBtn">📊 STATS</button><button class="purple" id="settingsBtn">⚙️ SETTINGS</button>
         <button class="secondary" id="levelsBtn">🗺️ LEVELS</button>
         <button class="purple" id="howBtn">❔ HOW TO PLAY</button>
       </div>
@@ -116,6 +116,7 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
 <section class="panel hidden" id="rebirth"><h2>🌟 Rebirth</h2><p class="subtitle">Restart your coin balance to gain a permanent coin bonus.</p><div class="extra-card"><b id="rebirthInfo">0 rebirths</b><small id="rebirthCost">Next rebirth cost: 25,000 coins</small></div><p class="note">Each rebirth gives +20% coins forever and 1 spin ticket. Your worlds, pets, XP and upgrades stay unlocked.</p><div class="buttonrow"><button class="primary" id="doRebirth">REBIRTH NOW</button><button class="secondary" id="rebirthBack">← BACK</button></div><p class="note" id="rebirthResult"></p></section>
 <section class="panel hidden" id="trails"><h2>✨ Trail Collection</h2><p class="subtitle">Unlock a colourful trail to follow your character through every obby.</p><div class="extra-grid" id="trailList"></div><div class="buttonrow"><button class="secondary" id="trailsBack">← BACK</button></div></section>
 <section class="panel hidden" id="stats"><h2>📊 Player Statistics</h2><p class="subtitle">Your ObbyVerse journey so far.</p><div class="extra-grid" id="statsGrid"></div><div class="buttonrow"><button class="secondary" id="statsBack">← BACK</button></div></section>
+<section class="panel hidden" id="settings"><h2>⚙️ Game Settings</h2><p class="subtitle">Make your adventure comfortable.</p><div class="extra-grid"><button class="extra-card" id="soundToggle"><b>🔊 Sound: ON</b><small>Toggle game sound effects</small></button><button class="extra-card" id="effectsToggle"><b>✨ Effects: ON</b><small>Reduce particles for a calmer game</small></button></div><div class="extra-card"><b>⌨️ Keyboard controls</b><small>Move: A / D or arrow keys · Jump: Space, W or ↑ · Pause: Menu button</small></div><p class="note" id="settingsNote">Settings are saved on this browser.</p><div class="buttonrow"><button class="secondary" id="settingsBack">← BACK</button></div></section>
 <section class="panel hidden" id="how">
       <h2>🎮 How to play</h2>
       <p class="subtitle">Reach the glowing portal at the end of each level. Watch your step!</p>
@@ -169,7 +170,7 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
 (() => {
 "use strict";
 const $ = id => document.getElementById(id);
-const panels = ["menu","levels","shop","pets","quests","spin","upgrades","daily","codes","rebirth","trails","stats","how","gameWrap"];
+const panels = ["menu","levels","shop","pets","quests","spin","upgrades","daily","codes","rebirth","trails","stats","settings","how","gameWrap"];
 let coins = Number(localStorage.getItem("obbyverseCoins") || 0);
 let unlocked = Math.max(0, Number(localStorage.getItem("obbyverseUnlocked") || 0));
 let currentStage = 0, gameRunning = false, raf = 0, lastTime = 0;
@@ -182,6 +183,8 @@ let claimedQuests=JSON.parse(localStorage.getItem("obbyverseClaimed")||"[]");
  let rebirths=Number(localStorage.getItem("obbyverseRebirths")||0),lastDaily=localStorage.getItem("obbyverseDaily")||"",dailyStreak=Number(localStorage.getItem("obbyverseDailyStreak")||0);
  let redeemedCodes=JSON.parse(localStorage.getItem("obbyverseCodes")||"[]"),ownedTrails=JSON.parse(localStorage.getItem("obbyverseTrails")||"[\"none\"]"),equippedTrail=localStorage.getItem("obbyverseTrail")||"none";
  let totalFalls=Number(localStorage.getItem("obbyverseTotalFalls")||0),trailTick=0;
+let soundEnabled=localStorage.getItem("obbyverseSound")!=="off",reducedEffects=localStorage.getItem("obbyverseEffects")==="reduced",audioContext=null,stageStartedAt=0;
+let bestTimes=JSON.parse(localStorage.getItem("obbyverseBestTimes")||"{}");
 let activePetBoost = {coins:0,xp:0,speed:0};
 const rarityOdds = [{name:"Common",chance:44.8955},{name:"Uncommon",chance:26.9973},{name:"Rare",chance:15.9984},{name:"Epic",chance:7.9992},{name:"Legendary",chance:3.4997},{name:"Mythic",chance:.4999},{name:"Secret",chance:.01},{name:"Divine",chance:.1}];
 const boostByRarity = {
@@ -199,7 +202,7 @@ const eggWorlds = [
  {name:"Secret Egg",emoji:"👑",price:12000,pets:["Mystery Blob","Hidden Fox","Shadow Sprite","Secret Knight","Phantom Wolf","Mystic Dragon","Unknown One","Owner's Guardian"]}
 ];
 
-function saveProgress(){localStorage.setItem("obbyverseTickets",String(tickets));localStorage.setItem("obbyverseCollected",String(totalCoinsCollected));localStorage.setItem("obbyverseWins",String(totalWins));localStorage.setItem("obbyverseHatches",String(totalHatches));localStorage.setItem("obbyverseUpgrades",JSON.stringify(upgradeLevels));localStorage.setItem("obbyverseClaimed",JSON.stringify(claimedQuests));localStorage.setItem("obbyverseRebirths",String(rebirths));localStorage.setItem("obbyverseDaily",lastDaily);localStorage.setItem("obbyverseDailyStreak",String(dailyStreak));localStorage.setItem("obbyverseCodes",JSON.stringify(redeemedCodes));localStorage.setItem("obbyverseTrails",JSON.stringify(ownedTrails));localStorage.setItem("obbyverseTrail",equippedTrail);localStorage.setItem("obbyverseTotalFalls",String(totalFalls));}
+function saveProgress(){localStorage.setItem("obbyverseTickets",String(tickets));localStorage.setItem("obbyverseCollected",String(totalCoinsCollected));localStorage.setItem("obbyverseWins",String(totalWins));localStorage.setItem("obbyverseHatches",String(totalHatches));localStorage.setItem("obbyverseUpgrades",JSON.stringify(upgradeLevels));localStorage.setItem("obbyverseClaimed",JSON.stringify(claimedQuests));localStorage.setItem("obbyverseRebirths",String(rebirths));localStorage.setItem("obbyverseDaily",lastDaily);localStorage.setItem("obbyverseDailyStreak",String(dailyStreak));localStorage.setItem("obbyverseCodes",JSON.stringify(redeemedCodes));localStorage.setItem("obbyverseTrails",JSON.stringify(ownedTrails));localStorage.setItem("obbyverseTrail",equippedTrail);localStorage.setItem("obbyverseTotalFalls",String(totalFalls));localStorage.setItem("obbyverseBestTimes",JSON.stringify(bestTimes));}
 function renderQuests(){
  const tasks=[{id:"coins",title:"Coin Collector",desc:"Collect 25 coins",value:totalCoinsCollected,target:25,reward:250},{id:"wins",title:"Obby Champion",desc:"Complete 3 levels",value:totalWins,target:3,reward:400},{id:"hatches",title:"Pet Parent",desc:"Hatch 3 eggs",value:totalHatches,target:3,reward:300}];
  $("questList").innerHTML="";tasks.forEach(q=>{const done=q.value>=q.target,claimed=claimedQuests.includes(q.id),b=document.createElement("button");b.className="level-card "+(done?"open":"");b.innerHTML="<b>"+(done?"✅ ":"🎯 ")+q.title+"</b><small>"+q.desc+" · "+Math.min(q.value,q.target)+"/"+q.target+"</small><small>"+(claimed?"CLAIMED":done?"Claim "+q.reward+" coins + 1 ticket":"Reward: "+q.reward+" coins + 1 ticket")+"</small>";b.disabled=!done||claimed;b.addEventListener("click",()=>{coins+=q.reward;tickets++;claimedQuests.push(q.id);save();saveProgress();updateCoins();renderQuests();});$("questList").appendChild(b);});
@@ -217,7 +220,7 @@ function refreshRebirth(){const cost=25000*(rebirths+1);$("rebirthInfo").textCon
 function doRebirth(){const cost=25000*(rebirths+1);if(coins<cost)return;coins=0;rebirths++;tickets++;save();saveProgress();updateCoins();refreshRebirth();$("rebirthResult").textContent="🌟 Rebirth "+rebirths+" complete! Your permanent coin bonus is now +"+(rebirths*20)+"%.";}
 const trails=[{id:"none",name:"No trail",emoji:"⚪",color:null,cost:0},{id:"spark",name:"Golden Spark",emoji:"✨",color:"#ffd64f",cost:500},{id:"bubble",name:"Bubble Pop",emoji:"🫧",color:"#72dcff",cost:1200},{id:"magic",name:"Magic Dust",emoji:"💜",color:"#bd91ff",cost:2500},{id:"fire",name:"Candy Flame",emoji:"🔥",color:"#ff8b9f",cost:4500},{id:"rainbow",name:"Rainbow Rush",emoji:"🌈",color:"#ff77b7",cost:8000}];
 function renderTrails(){const grid=$("trailList");grid.innerHTML="";trails.forEach(t=>{const owned=ownedTrails.includes(t.id),active=equippedTrail===t.id,b=document.createElement("button");b.className="extra-card";b.innerHTML="<b>"+t.emoji+" "+t.name+"</b><small>"+(active?"✓ EQUIPPED":owned?"Tap to equip":t.cost.toLocaleString()+" coins · Unlock")+"</small>";b.disabled=active||(!owned&&coins<t.cost);b.addEventListener("click",()=>{if(!owned){coins-=t.cost;ownedTrails.push(t.id);}equippedTrail=t.id;save();saveProgress();updateCoins();renderTrails();});grid.appendChild(b);});}
-function renderStats(){const data=[["🏆","Levels completed",totalWins],["🪙","Coins collected",totalCoinsCollected],["🥚","Eggs hatched",totalHatches],["🐾","Pets discovered",petBook.length+"/64"],["🌟","Rebirths",rebirths],["🎟️","Spin tickets",tickets],["⭐","XP earned",Math.floor(xp)],["💫","Total falls",totalFalls],["🗺️","Stages unlocked",(unlocked+1)+"/"+stages.length]];$("statsGrid").innerHTML="";data.forEach(x=>{const d=document.createElement("div");d.className="extra-card";d.innerHTML="<b>"+x[0]+" "+x[2]+"</b><small>"+x[1]+"</small>";$("statsGrid").appendChild(d);});}
+function renderStats(){const fastest=Object.values(bestTimes).length?Math.min(...Object.values(bestTimes)):"—";const data=[["⏱️","Fastest level (seconds)",fastest==="—"?fastest:(fastest/1000).toFixed(1)],["🏆","Levels completed",totalWins],["🪙","Coins collected",totalCoinsCollected],["🥚","Eggs hatched",totalHatches],["🐾","Pets discovered",petBook.length+"/64"],["🌟","Rebirths",rebirths],["🎟️","Spin tickets",tickets],["⭐","XP earned",Math.floor(xp)],["💫","Total falls",totalFalls],["🗺️","Stages unlocked",(unlocked+1)+"/"+stages.length]];$("statsGrid").innerHTML="";data.forEach(x=>{const d=document.createElement("div");d.className="extra-card";d.innerHTML="<b>"+x[0]+" "+x[2]+"</b><small>"+x[1]+"</small>";$("statsGrid").appendChild(d);});}
 
 
 function petData(id){return petBook.find(p=>p.id===id);}
@@ -303,7 +306,7 @@ function renderLevelGrid(){
  entries.forEach(e=>{
   const playable=e.idx<stages.length,open=e.idx<=unlocked;
   const b=document.createElement("button");b.className="level-card "+(open&&playable?"open":"");b.disabled=!open||!playable;
-  b.innerHTML="<b>"+(e.idx===0?"🎓":e.idx)+"</b><small>"+e.name+(playable?"": " · SOON")+"</small>";
+  const record=bestTimes[e.idx];b.innerHTML="<b>"+(e.idx===0?"🎓":e.idx)+"</b><small>"+e.name+(playable?"": " · SOON")+"</small>"+(record?"<small>🏅 Best: "+(record/1000).toFixed(1)+"s</small>":"");
   if(open&&playable)b.addEventListener("click",()=>startStage(e.idx));
   grid.appendChild(b);
  });
@@ -315,7 +318,7 @@ function showMessage(title,text,emoji,buttons){
  $("message").classList.remove("hidden");
 }
 function startStage(index){
- currentStage=index;world=structuredClone(stages[index]);player={x:world.spawn[0],y:world.spawn[1],w:34,h:42,vx:0,vy:0,ground:false,face:1};
+ currentStage=index;stageStartedAt=performance.now();world=structuredClone(stages[index]);player={x:world.spawn[0],y:world.spawn[1],w:34,h:42,vx:0,vy:0,ground:false,face:1};
  cameraX=0;falls=0;levelCoins=0;collected=new Set();particles=[];gameRunning=true;
  const icons={inferno:"🌋",frozen:"❄️",void:"🌌",ancient:"🏛️",ascension:"⚡",prism:"🌈",secret:"👑"};$("stageLabel").textContent=(index===0?"🎓 ":(icons[world.theme]||"☁️ ")) + world.name;
  $("deathHud").textContent="💫 Falls: 0";updateCoins();showPanel("gameWrap");
@@ -323,12 +326,14 @@ function startStage(index){
  if(world.tips){let tip=world.tips[0];showMessage("Welcome to ObbyVerse!",tip,"🎮",[{label:"LET'S GO!",primary:true,action:()=>{}}]);}
 }
 function respawn(){
- falls++;totalFalls++;localStorage.setItem("obbyverseTotalFalls",String(totalFalls));$("deathHud").textContent="💫 Falls: "+falls;
+ falls++;totalFalls++;playTone(190,.11);localStorage.setItem("obbyverseTotalFalls",String(totalFalls));$("deathHud").textContent="💫 Falls: "+falls;
  player.x=world.checkpointX||world.spawn[0];player.y=world.checkpointY||world.spawn[1];player.vx=0;player.vy=0;player.ground=false;
  burst(player.x+player.w/2,player.y+player.h/2,"#ff84b8",12);
 }
 function intersects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
-function burst(x,y,color,n){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*5,vy:(Math.random()-.8)*5,life:35,color});}
+function playTone(freq=660,duration=.07){if(!soundEnabled)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!audioContext)audioContext=new AC();if(audioContext.state==="suspended")audioContext.resume();const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type="sine";osc.frequency.value=freq;gain.gain.setValueAtTime(.045,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+duration);osc.connect(gain);gain.connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+duration);}catch(e){}}
+function refreshSettings(){$("soundToggle").innerHTML="<b>"+(soundEnabled?"🔊 Sound: ON":"🔇 Sound: OFF")+"</b><small>Toggle game sound effects</small>";$("effectsToggle").innerHTML="<b>"+(reducedEffects?"🍃 Effects: REDUCED":"✨ Effects: ON")+"</b><small>Reduce particles for a calmer game</small>";}
+function burst(x,y,color,n){if(reducedEffects)n=Math.max(1,Math.ceil(n*.25));for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*5,vy:(Math.random()-.8)*5,life:35,color});}
 function loop(now){
  if(!gameRunning)return;const dt=Math.min(2,(now-lastTime)/16.67||1);lastTime=now;update(dt);draw();raf=requestAnimationFrame(loop);
 }
@@ -349,14 +354,14 @@ function update(dt){
   world.checkpointReached=true;world.checkpointX=world.checkpoint;world.checkpointY=world.platforms.find(p=>world.checkpoint>=p[0]&&world.checkpoint<=p[0]+p[2])?.[1]-player.h||world.spawn[1];
   burst(world.checkpoint,world.checkpointY,"#58dc9b",22);
  }
- world.coinSpots.forEach((c,i)=>{if(collected.has(i))return;const dx=(player.x+player.w/2)-c[0],dy=(player.y+player.h/2)-c[1];if(dx*dx+dy*dy<28*28){collected.add(i);levelCoins+=10*(1+(activePetBoost.coins||0)/100)*(1+(upgradeLevels.coin||0)*.1)*(1+rebirths*.2);totalCoinsCollected++;xp+=1+(activePetBoost.xp||0)/100;saveProgress();localStorage.setItem("obbyverseXP",String(xp));burst(c[0],c[1],"#ffd64f",10);updateCoins();}});
+ world.coinSpots.forEach((c,i)=>{if(collected.has(i))return;const dx=(player.x+player.w/2)-c[0],dy=(player.y+player.h/2)-c[1];if(dx*dx+dy*dy<28*28){collected.add(i);playTone(780,.045);levelCoins+=10*(1+(activePetBoost.coins||0)/100)*(1+(upgradeLevels.coin||0)*.1)*(1+rebirths*.2);totalCoinsCollected++;xp+=1+(activePetBoost.xp||0)/100;saveProgress();localStorage.setItem("obbyverseXP",String(xp));burst(c[0],c[1],"#ffd64f",10);updateCoins();}});
  if(player.x+player.w>=world.goal){completeStage();return;}
  cameraX=Math.max(0,Math.min(world.width-W,player.x-W*.34));
   const trail=trails.find(t=>t.id===equippedTrail);if(trail&&trail.color&&trailTick++%4===0)particles.push({x:player.x+player.w/2,y:player.y+player.h-3,vx:(Math.random()-.5)*.7,vy:.3,life:22,color:trail.color});
  particles=particles.filter(p=>p.life-->0);particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.12;});
 }
 function completeStage(){
- gameRunning=false;cancelAnimationFrame(raf);totalWins++;tickets++;saveProgress();coins+=Math.floor(levelCoins)+Math.floor((100+currentStage*5)*(1+rebirths*.2));xp+=Math.floor(10*(1+(activePetBoost.xp||0)/100));localStorage.setItem("obbyverseXP",String(xp));unlocked=Math.max(unlocked,Math.min(stages.length-1,currentStage+1));save();showPanel("menu");activePetBoost=boostsForPet(petData(equippedPet));showPanel("menu");updateCoins();renderLevelGrid();renderEggShop();renderPets();refreshDaily();refreshRebirth();renderQuests();renderUpgrades();renderQuests();renderUpgrades();
+ gameRunning=false;cancelAnimationFrame(raf);playTone(980,.18);const elapsed=Math.max(1,Math.round(performance.now()-stageStartedAt));if(!bestTimes[currentStage]||elapsed<bestTimes[currentStage])bestTimes[currentStage]=elapsed;totalWins++;tickets++;saveProgress();coins+=Math.floor(levelCoins)+Math.floor((100+currentStage*5)*(1+rebirths*.2));xp+=Math.floor(10*(1+(activePetBoost.xp||0)/100));localStorage.setItem("obbyverseXP",String(xp));unlocked=Math.max(unlocked,Math.min(stages.length-1,currentStage+1));save();showPanel("menu");activePetBoost=boostsForPet(petData(equippedPet));refreshSettings();showPanel("menu");updateCoins();renderLevelGrid();renderEggShop();renderPets();refreshDaily();refreshRebirth();renderQuests();renderUpgrades();renderQuests();renderUpgrades();
  const next=currentStage+1,hasNext=next<stages.length;
  showMessage("LEVEL COMPLETE!","You collected "+levelCoins+" coins and made it to the portal!","🏆",[
   ...(hasNext?[{label:"NEXT LEVEL ▶",primary:true,action:()=>startStage(next)}]:[]),
@@ -408,7 +413,7 @@ bindHold("leftBtn","left");bindHold("rightBtn","right");bindHold("jumpBtn","jump
 $("dailyBtn").addEventListener("click",()=>{refreshDaily();$("dailyResult").textContent="";showPanel("daily");});$("claimDaily").addEventListener("click",claimDaily);$("dailyBack").addEventListener("click",menu);
  $("codesBtn").addEventListener("click",()=>{$("codeInput").value="";$("codeResult").textContent="";showPanel("codes");});$("redeemCode").addEventListener("click",redeem);$("codeInput").addEventListener("keydown",e=>{if(e.key==="Enter")redeem();});$("codesBack").addEventListener("click",menu);
  $("rebirthBtn").addEventListener("click",()=>{refreshRebirth();$("rebirthResult").textContent="";showPanel("rebirth");});$("doRebirth").addEventListener("click",doRebirth);$("rebirthBack").addEventListener("click",menu);
- $("trailsBtn").addEventListener("click",()=>{renderTrails();showPanel("trails");});$("trailsBack").addEventListener("click",menu);$("statsBtn").addEventListener("click",()=>{renderStats();showPanel("stats");});$("statsBack").addEventListener("click",menu);
+ $("trailsBtn").addEventListener("click",()=>{renderTrails();showPanel("trails");});$("trailsBack").addEventListener("click",menu);$("statsBtn").addEventListener("click",()=>{renderStats();showPanel("stats");});$("statsBack").addEventListener("click",menu);$("settingsBtn").addEventListener("click",()=>{refreshSettings();showPanel("settings");});$("settingsBack").addEventListener("click",menu);$("soundToggle").addEventListener("click",()=>{soundEnabled=!soundEnabled;localStorage.setItem("obbyverseSound",soundEnabled?"on":"off");refreshSettings();if(soundEnabled)playTone(700);});$("effectsToggle").addEventListener("click",()=>{reducedEffects=!reducedEffects;localStorage.setItem("obbyverseEffects",reducedEffects?"reduced":"on");refreshSettings();});
  $("shopBtn").addEventListener("click",()=>{renderEggShop();showPanel("shop");});
 $("questsBtn").addEventListener("click",()=>{renderQuests();showPanel("quests");});$("spinBtn").addEventListener("click",()=>{$("ticketCount").textContent="You have "+tickets+" tickets.";$("spinResult").textContent="";showPanel("spin");});$("upgradesBtn").addEventListener("click",()=>{renderUpgrades();showPanel("upgrades");});$("spinNow").addEventListener("click",doSpin);$("questsBack").addEventListener("click",menu);$("spinBack").addEventListener("click",menu);$("upgradesBack").addEventListener("click",menu);
 $("petsBtn").addEventListener("click",()=>{renderPets();showPanel("pets");});
