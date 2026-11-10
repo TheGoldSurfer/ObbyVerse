@@ -249,6 +249,8 @@ function makeWorldStage(spec,levelNo){
   coinSpots.push([x+48,y-38]);
   if(i%3===0)platforms.push([x+68,y-75,78]);
  }
+ // Safe stepping stone prevents the final gap from exceeding jump range.
+ platforms.push([width-390,410,115]);
  platforms.push([width-230,480,230]);
  return {name:spec.name+" "+["I","II","III"][levelNo-1],world:spec.name,theme:spec.theme,width,spawn:[55,390],goal:width-75,platforms,spikes,coinSpots,checkpoint:Math.floor(width*.53),colors:spec};
 }
