@@ -19,7 +19,7 @@ button:active{transform:translateY(1px) scale(.98)}
 .brand span{color:#fff0a9}
 .pill{padding:9px 14px;border-radius:999px;background:#ffffffbd;box-shadow:0 4px 0 #8cb8dc66;font-weight:900}
 main{flex:1;display:flex;align-items:center;justify-content:center}
-.panel{width:min(100%,850px);padding:clamp(18px,4vw,34px);border:4px solid #fff;border-radius:30px;background:var(--panel);box-shadow:0 12px 0 #6b8fc733,0 22px 50px #486a9a25;text-align:center}
+.panel{display:block; width:min(100%,850px);padding:clamp(18px,4vw,34px);border:4px solid #fff;border-radius:30px;background:var(--panel);box-shadow:0 12px 0 #6b8fc733,0 22px 50px #486a9a25;text-align:center}
 h1{font-size:clamp(32px,7vw,62px);line-height:1;margin:5px 0 12px;color:#6357d7;text-shadow:0 3px 0 #dfdcff}
 h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
 .subtitle{font-size:clamp(14px,2.5vw,18px);color:#69759d;margin:0 auto 22px;max-width:620px;font-weight:700}
@@ -213,7 +213,7 @@ function update(dt){
  particles=particles.filter(p=>p.life-->0);particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.12;});
 }
 function completeStage(){
- gameRunning=false;cancelAnimationFrame(raf);coins+=levelCoins;unlocked=Math.max(unlocked,Math.min(stages.length-1,currentStage+1));save();updateCoins();renderLevelGrid();
+ gameRunning=false;cancelAnimationFrame(raf);coins+=levelCoins;unlocked=Math.max(unlocked,Math.min(stages.length-1,currentStage+1));save();showPanel("menu");updateCoins();renderLevelGrid();
  const next=currentStage+1,hasNext=next<stages.length;
  showMessage("LEVEL COMPLETE!","You collected "+levelCoins+" coins and made it to the portal!","🏆",[
   ...(hasNext?[{label:"NEXT LEVEL ▶",primary:true,action:()=>startStage(next)}]:[]),
