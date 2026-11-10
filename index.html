@@ -95,9 +95,9 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
     </section>
     <section class="panel hidden" id="shop">
       <h2>🥚 Egg Shop</h2>
-      <p class="subtitle">Choose an egg and discover seven pets from its world!</p>
+      <p class="subtitle">Choose an egg and discover eight pets from its world!</p>
       <div id="eggShop" class="level-grid"></div>
-      <p class="note">Hatching costs coins. Each egg has Common, Uncommon, Rare, Epic, Legendary, Mythic and Secret pets.</p>
+      <p class="note">Hatching costs coins. Each egg has 8 pets: Common, Uncommon, Rare, Epic, Legendary, Mythic, Secret and Divine.</p>
       <div class="buttonrow"><button class="secondary" id="shopBack">← BACK</button></div>
     </section>
     <section class="panel hidden" id="pets">
@@ -174,14 +174,14 @@ const boostByRarity = {
  Epic:{coins:5,xp:5,speed:0},Legendary:{coins:10,xp:0,speed:5},Mythic:{coins:10,xp:10,speed:5},Secret:{coins:15,xp:15,speed:15},Divine:{coins:50,xp:50,speed:50}
 };
 const eggWorlds = [
- {name:"Heaven Egg",emoji:"☁️",price:250,pets:["Cloud Bunny","Little Cherub","Sky Fox","Halo Griffin","Sun Pegasus","Seraph Dragon","Heavenly Secret"]},
- {name:"Inferno Egg",emoji:"🌋",price:1000,pets:["Ember Pup","Cinder Cat","Magma Turtle","Flame Hawk","Lava Golem","Inferno Drake","Core Guardian"]},
- {name:"Frozen Egg",emoji:"❄️",price:4000,pets:["Snow Mouse","Frost Kitten","Ice Penguin","Crystal Wolf","Glacier Bear","Frost Phoenix","Winter Phantom"]},
- {name:"Void Egg",emoji:"🌌",price:15000,pets:["Gloom Bat","Star Slime","Moon Moth","Nebula Fox","Comet Dragon","Void Reaper","Cosmic Unknown"]},
- {name:"Ancient Egg",emoji:"🏛️",price:60000,pets:["Pebble Buddy","Rune Beetle","Temple Gecko","Relic Hound","Golden Sphinx","Titan Colossus","Lost Emperor"]},
- {name:"Ascension Egg",emoji:"⚡",price:250000,pets:["Tiny Spark","Bolt Bunny","Storm Cub","Thunder Hawk","Tempest Lion","Skybreaker Dragon","Storm Sovereign"]},
- {name:"Prism Egg",emoji:"🌈",price:1000000,pets:["Prism Puff","Rainbow Chick","Gem Kitty","Spectrum Deer","Crystal Unicorn","Prismatic Dragon","Rainbow Enigma","Prism Deity"]},
- {name:"Secret Egg",emoji:"👑",price:2500000,pets:["Mystery Blob","Hidden Fox","Shadow Sprite","Secret Knight","Phantom Wolf","Mystic Dragon","Unknown One","Owner's Guardian"]}
+ {name:"Heaven Egg",emoji:"☁️",price:100,pets:["Cloud Bunny","Little Cherub","Sky Fox","Halo Griffin","Sun Pegasus","Seraph Dragon","Heavenly Secret","Heavenly Deity"]},
+ {name:"Inferno Egg",emoji:"🌋",price:250,pets:["Ember Pup","Cinder Cat","Magma Turtle","Flame Hawk","Lava Golem","Inferno Drake","Core Guardian","Magma Deity"]},
+ {name:"Frozen Egg",emoji:"❄️",price:500,pets:["Snow Mouse","Frost Kitten","Ice Penguin","Crystal Wolf","Glacier Bear","Frost Phoenix","Winter Phantom","Frost Deity"]},
+ {name:"Void Egg",emoji:"🌌",price:1000,pets:["Gloom Bat","Star Slime","Moon Moth","Nebula Fox","Comet Dragon","Void Reaper","Cosmic Unknown","Void Deity"]},
+ {name:"Ancient Egg",emoji:"🏛️",price:2000,pets:["Pebble Buddy","Rune Beetle","Temple Gecko","Relic Hound","Golden Sphinx","Titan Colossus","Lost Emperor","Ancient Deity"]},
+ {name:"Ascension Egg",emoji:"⚡",price:4000,pets:["Tiny Spark","Bolt Bunny","Storm Cub","Thunder Hawk","Tempest Lion","Skybreaker Dragon","Storm Sovereign","Ascension Deity"]},
+ {name:"Prism Egg",emoji:"🌈",price:8000,pets:["Prism Puff","Rainbow Chick","Gem Kitty","Spectrum Deer","Crystal Unicorn","Prismatic Dragon","Rainbow Enigma","Prism Deity"]},
+ {name:"Secret Egg",emoji:"👑",price:12000,pets:["Mystery Blob","Hidden Fox","Shadow Sprite","Secret Knight","Phantom Wolf","Mystic Dragon","Unknown One","Owner's Guardian"]}
 ];
 function petData(id){return petBook.find(p=>p.id===id);}
 function savePets(){localStorage.setItem("obbyversePets",JSON.stringify(petBook));localStorage.setItem("obbyverseEquipped",equippedPet);localStorage.setItem("obbyverseXP",String(xp));}
@@ -189,10 +189,10 @@ function boostsForPet(p){return p?boostByRarity[p.rarity]:{coins:0,xp:0,speed:0}
 function updateCoins(){ $("coinPill").textContent="🪙 "+coins+" coins · ⭐ "+xp+" XP"; $("coinHud").textContent="🪙 "+(coins+levelCoins); }
 function renderEggShop(){
  const grid=$("eggShop");grid.innerHTML="";const required=[0,4,7,10,13,16,19,22];
- eggWorlds.forEach((egg,i)=>{const open=unlocked>=required[i];const b=document.createElement("button");b.className="level-card "+(open?"open":"");b.disabled=!open;b.innerHTML="<b>"+egg.emoji+" "+egg.name+"</b><small>"+(open?"🪙 "+egg.price.toLocaleString()+" · 7 pets":"🔒 Unlock "+stages[required[i]].name)+"</small>";if(open)b.addEventListener("click",()=>hatchEgg(i));grid.appendChild(b);});
+ eggWorlds.forEach((egg,i)=>{const open=unlocked>=required[i];const b=document.createElement("button");b.className="level-card "+(open?"open":"");b.disabled=!open;b.innerHTML="<b>"+egg.emoji+" "+egg.name+"</b><small>"+(open?"🪙 "+egg.price.toLocaleString()+" · 8 pets":"🔒 Unlock "+stages[required[i]].name)+"</small>";if(open)b.addEventListener("click",()=>hatchEgg(i));grid.appendChild(b);});
 }
 function renderPets(){
- const grid=$("petGrid");grid.innerHTML="";$("petSummary").textContent=petBook.length+" / 49 pets discovered · "+(equippedPet?"1 equipped":"No pet equipped");
+ const grid=$("petGrid");grid.innerHTML="";$("petSummary").textContent=petBook.length+" / 64 pets discovered · "+(equippedPet?"1 equipped":"No pet equipped");
  if(!petBook.length){grid.innerHTML='<div class="pet-card">🥚<b>No pets yet!</b><small>Visit the Egg Shop to hatch your first pet.</small></div>';}
  petBook.forEach(p=>{const b=document.createElement("button");b.className="pet-card rarity-"+p.rarity.toLowerCase();b.innerHTML="<b>"+p.emoji+" "+p.name+"</b><small>"+p.rarity+" · +"+p.boost.coins+"% coins · +"+p.boost.xp+"% XP · +"+p.boost.speed+"% speed</small><small>"+(p.id===equippedPet?"✓ EQUIPPED":"Tap to equip")+"</small>";b.addEventListener("click",()=>{equippedPet=p.id;activePetBoost=boostsForPet(p);savePets();renderPets();});grid.appendChild(b);});
  const p=petData(equippedPet);$("equippedPet").textContent=p?"Equipped: "+p.name+" ("+p.rarity+") — boosts apply while playing.":"No pet equipped. Tap a pet to equip it.";
@@ -205,7 +205,7 @@ function hatchEgg(index){
  const id="w"+index+"-"+petIndex;
  let pet=petBook.find(p=>p.id===id);
  const isNew=!pet;
- if(!pet){pet={id,name:egg.pets[petIndex],emoji:["🐾","🐣","🦊","🦅","🐉","✨","👑","🌟"][petIndex],rarity:rarity.name,boost:boostByRarity[rarity.name]};petBook.push(pet);}
+ if(!pet){pet={id,name:egg.pets[petIndex],emoji:["🐾","🐣","🦊","🦅","🐉","✨","👑","🌟"][petIndex],rarity:rarity.name,boost:boostByRarity[rarity.name],count:1};petBook.push(pet);}else{pet.count=(pet.count||1)+1;}
  equippedPet=id;activePetBoost=boostsForPet(pet);savePets();renderPets();
  $("messageEmoji").innerHTML='<div class="hatch-egg">'+egg.emoji+'</div>';
  $("messageTitle").textContent="Hatching "+egg.name+"...";
@@ -310,13 +310,13 @@ function update(dt){
   world.checkpointReached=true;world.checkpointX=world.checkpoint;world.checkpointY=world.platforms.find(p=>world.checkpoint>=p[0]&&world.checkpoint<=p[0]+p[2])?.[1]-player.h||world.spawn[1];
   burst(world.checkpoint,world.checkpointY,"#58dc9b",22);
  }
- world.coinSpots.forEach((c,i)=>{if(collected.has(i))return;const dx=(player.x+player.w/2)-c[0],dy=(player.y+player.h/2)-c[1];if(dx*dx+dy*dy<28*28){collected.add(i);levelCoins+=1+(activePetBoost.coins||0)/100;xp+=1+(activePetBoost.xp||0)/100;localStorage.setItem("obbyverseXP",String(xp));burst(c[0],c[1],"#ffd64f",10);updateCoins();}});
+ world.coinSpots.forEach((c,i)=>{if(collected.has(i))return;const dx=(player.x+player.w/2)-c[0],dy=(player.y+player.h/2)-c[1];if(dx*dx+dy*dy<28*28){collected.add(i);levelCoins+=10*(1+(activePetBoost.coins||0)/100);xp+=1+(activePetBoost.xp||0)/100;localStorage.setItem("obbyverseXP",String(xp));burst(c[0],c[1],"#ffd64f",10);updateCoins();}});
  if(player.x+player.w>=world.goal){completeStage();return;}
  cameraX=Math.max(0,Math.min(world.width-W,player.x-W*.34));
  particles=particles.filter(p=>p.life-->0);particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.12;});
 }
 function completeStage(){
- gameRunning=false;cancelAnimationFrame(raf);coins+=Math.floor(levelCoins);xp+=Math.floor(5*(1+(activePetBoost.xp||0)/100));localStorage.setItem("obbyverseXP",String(xp));unlocked=Math.max(unlocked,Math.min(stages.length-1,currentStage+1));save();showPanel("menu");activePetBoost=boostsForPet(petData(equippedPet));showPanel("menu");updateCoins();renderLevelGrid();renderEggShop();renderPets();
+ gameRunning=false;cancelAnimationFrame(raf);coins+=Math.floor(levelCoins)+100+currentStage*5;xp+=Math.floor(10*(1+(activePetBoost.xp||0)/100));localStorage.setItem("obbyverseXP",String(xp));unlocked=Math.max(unlocked,Math.min(stages.length-1,currentStage+1));save();showPanel("menu");activePetBoost=boostsForPet(petData(equippedPet));showPanel("menu");updateCoins();renderLevelGrid();renderEggShop();renderPets();
  const next=currentStage+1,hasNext=next<stages.length;
  showMessage("LEVEL COMPLETE!","You collected "+levelCoins+" coins and made it to the portal!","🏆",[
   ...(hasNext?[{label:"NEXT LEVEL ▶",primary:true,action:()=>startStage(next)}]:[]),
