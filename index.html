@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#7467f0">
+<title>ObbyVerse</title>
+<style>
+:root{--ink:#26305b;--purple:#7668ef;--pink:#ff77b7;--blue:#62c9f5;--gold:#ffd45c;--panel:#ffffffed}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;color:var(--ink);background:#bdeeff}
+body{overflow-x:hidden;background:linear-gradient(180deg,#87dcff 0%,#c9f3ff 55%,#effcff 100%)}
+button{font:inherit;border:0;cursor:pointer;color:var(--ink);font-weight:900;transition:transform .12s,filter .12s}
+button:hover{filter:brightness(1.04);transform:translateY(-2px)}
+button:active{transform:translateY(1px) scale(.98)}
+#app{max-width:1120px;margin:0 auto;padding:18px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.brand{font-size:clamp(24px,5vw,42px);font-weight:1000;letter-spacing:-2px;color:#fff;text-shadow:0 4px 0 #6c5bd8,0 7px 0 #4d49a9,0 9px 14px #4c6b9b66}
+.brand span{color:#fff0a9}
+.pill{padding:9px 14px;border-radius:999px;background:#ffffffbd;box-shadow:0 4px 0 #8cb8dc66;font-weight:900}
+main{flex:1;display:flex;align-items:center;justify-content:center}
+.panel{width:min(100%,850px);padding:clamp(18px,4vw,34px);border:4px solid #fff;border-radius:30px;background:var(--panel);box-shadow:0 12px 0 #6b8fc733,0 22px 50px #486a9a25;text-align:center}
+h1{font-size:clamp(32px,7vw,62px);line-height:1;margin:5px 0 12px;color:#6357d7;text-shadow:0 3px 0 #dfdcff}
+h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
+.subtitle{font-size:clamp(14px,2.5vw,18px);color:#69759d;margin:0 auto 22px;max-width:620px;font-weight:700}
+.primary{background:linear-gradient(180deg,#ffe77b,#ffc54d);box-shadow:0 6px 0 #d99b37;padding:14px 24px;border-radius:17px;font-size:18px}
+.secondary{background:linear-gradient(180deg,#b9efff,#7fd7fb);box-shadow:0 6px 0 #4da5d4;padding:12px 20px;border-radius:16px}
+.purple{background:linear-gradient(180deg,#b9b1ff,#877af5);box-shadow:0 6px 0 #5c51c8;color:white;padding:12px 20px;border-radius:16px}
+.small{font-size:14px;padding:9px 14px;border-radius:13px}
+.buttonrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.world-banner{border-radius:22px;padding:22px;margin:16px 0;background:linear-gradient(120deg,#90e6ff,#b6f4dd 50%,#ffe48b);box-shadow:inset 0 -5px 0 #5aabd433;position:relative;overflow:hidden}
+.world-banner:after{content:"☁️   ✨   ☁️";position:absolute;right:18px;top:14px;font-size:25px;opacity:.8}
+.world-banner strong{display:block;font-size:25px;color:#fff;text-shadow:0 2px 0 #65a7c9}
+.world-banner span{font-weight:800;color:#587ba3}
+.level-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:11px;margin:20px 0}
+.level-card{padding:14px 8px;border-radius:18px;background:#f1f4ff;border:3px solid white;box-shadow:0 5px 0 #c8d2ef;font-weight:900}
+.level-card.open{background:linear-gradient(#e8fff5,#bcf5dc);box-shadow:0 5px 0 #83cfaa}
+.level-card:disabled{opacity:.48;cursor:not-allowed;transform:none;filter:grayscale(.35)}
+.level-card b{display:block;font-size:25px;color:#655bdb}
+.level-card small{display:block;color:#7180a5;margin-top:3px}
+.note{font-size:13px;color:#7e87a7;font-weight:700;line-height:1.5}
+#gameWrap{width:100%;display:none}
+.gamebar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+.hud{background:#ffffffdf;padding:8px 13px;border-radius:999px;font-weight:900;box-shadow:0 3px 0 #8bbad866}
+#gameCanvas{display:block;width:100%;height:auto;aspect-ratio:16/9;border:5px solid white;border-radius:22px;box-shadow:0 10px 0 #6a8abb55;background:#8be0ff;touch-action:none}
+.helpbar{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 3px;color:#53648d;font-size:13px;font-weight:800}
+.mobile-controls{display:none;justify-content:space-between;align-items:center;margin:9px 0 0;gap:10px;touch-action:none}
+.control-group{display:flex;gap:9px}
+.touchbtn{width:62px;height:58px;border-radius:18px;background:#ffffffd9;border:3px solid white;box-shadow:0 5px 0 #8a9cce;font-size:24px;touch-action:none;user-select:none}
+.overlay{position:fixed;inset:0;background:#33407899;display:flex;align-items:center;justify-content:center;padding:18px;z-index:10}
+.modal{width:min(480px,100%);background:white;border:5px solid #fff;border-radius:30px;padding:26px;text-align:center;box-shadow:0 15px 0 #4659a755}
+.modal h2{color:#675cdb;font-size:32px}
+.progress{height:16px;border-radius:99px;background:#e8e9ff;overflow:hidden;margin:20px 0 10px}
+.progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#78d9ff,#9a82ff,#ff8cc6);border-radius:99px;animation:load 2.4s ease-out forwards}
+@keyframes load{to{width:100%}}
+.hidden{display:none!important}
+@media(max-width:700px){#app{padding:12px}.panel{border-radius:23px}.mobile-controls{display:flex}.helpbar{font-size:12px}.touchbtn{width:58px;height:54px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">Obby<span>Verse</span></div>
+    <div class="pill" id="coinPill">🪙 0 coins</div>
+  </header>
+  <main>
+    <section class="panel" id="menu">
+      <div style="font-size:54px">🌈 ☁️ 🏝️</div>
+      <h1>OBBYVERSE</h1>
+      <p class="subtitle">Every world has a challenge. Every challenge has a legend.</p>
+      <div class="world-banner"><strong>HEAVEN'S HEIGHTS</strong><span>Your first big adventure awaits!</span></div>
+      <div class="buttonrow">
+        <button class="primary" id="playBtn">▶ PLAY</button>
+        <button class="secondary" id="levelsBtn">🗺️ LEVELS</button>
+        <button class="purple" id="howBtn">❔ HOW TO PLAY</button>
+      </div>
+      <p class="note" style="margin-top:22px">Early prototype · More worlds, pets, eggs, quests and multiplayer are planned!</p>
+    </section>
+    <section class="panel hidden" id="levels">
+      <h2>🗺️ Choose a level</h2>
+      <p class="subtitle">Start with the tutorial, then explore Heaven's Heights.</p>
+      <div class="world-banner"><strong>HEAVEN'S HEIGHTS</strong><span>World 1 · 20 planned levels</span></div>
+      <div class="level-grid" id="levelGrid"></div>
+      <p class="note">The first three Heaven's Heights levels are playable in this prototype. More levels will be added as we build ObbyVerse.</p>
+      <div class="buttonrow"><button class="secondary" id="levelsBack">← BACK</button></div>
+    </section>
+    <section class="panel hidden" id="how">
+      <h2>🎮 How to play</h2>
+      <p class="subtitle">Reach the glowing portal at the end of each level. Watch your step!</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;text-align:left;margin:20px 0">
+        <div class="level-card">⌨️ <b>Move</b><small>A / D or ← / →</small></div>
+        <div class="level-card">⬆️ <b>Jump</b><small>Space, W or ↑</small></div>
+        <div class="level-card">🪙 <b>Collect</b><small>Grab coins on the way</small></div>
+        <div class="level-card">🚩 <b>Checkpoint</b><small>Touch flags to save your spot</small></div>
+      </div>
+      <p class="note">On a phone or tablet, use the on-screen ◀ ▶ and JUMP buttons. Falling or touching spikes sends you back to your latest checkpoint.</p>
+      <div class="buttonrow"><button class="secondary" id="howBack">← BACK</button></div>
+    </section>
+    <section id="gameWrap">
+      <div class="gamebar">
+        <span class="hud" id="stageLabel">☁️ Tutorial</span>
+        <span class="hud" id="coinHud">🪙 0</span>
+        <span class="hud" id="deathHud">💫 Falls: 0</span>
+        <button class="secondary small" id="pauseBtn">Ⅱ MENU</button>
+      </div>
+      <canvas id="gameCanvas" width="960" height="540" aria-label="ObbyVerse platform game"></canvas>
+      <div class="mobile-controls">
+        <div class="control-group">
+          <button class="touchbtn" id="leftBtn" aria-label="Move left">◀</button>
+          <button class="touchbtn" id="rightBtn" aria-label="Move right">▶</button>
+        </div>
+        <button class="touchbtn" id="jumpBtn" aria-label="Jump">⬆</button>
+      </div>
+      <div class="helpbar"><span>Move: A/D or ←/→ · Jump: SPACE / W / ↑</span><span>Find coins and reach the portal! ✨</span></div>
+    </section>
+  </main>
+</div>
+<div class="overlay hidden" id="loading">
+  <div class="modal">
+    <div style="font-size:58px">🌈🏝️✨</div>
+    <h2>OBBYVERSE</h2>
+    <p class="subtitle">Loading your adventure...</p>
+    <div class="progress"><i></i></div>
+    <p class="note">Preparing floating islands and happy clouds!</p>
+    <button class="secondary small" id="skipLoad">SKIP</button>
+  </div>
+</div>
+<div class="overlay hidden" id="message">
+  <div class="modal">
+    <div id="messageEmoji" style="font-size:56px">🎉</div>
+    <h2 id="messageTitle">Level complete!</h2>
+    <p class="subtitle" id="messageText">Great job!</p>
+    <div class="buttonrow" id="messageButtons"></div>
+  </div>
+</div>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const panels = ["menu","levels","how","gameWrap"];
+let coins = Number(localStorage.getItem("obbyverseCoins") || 0);
+let unlocked = Math.max(0, Number(localStorage.getItem("obbyverseUnlocked") || 0));
+let currentStage = 0, gameRunning = false, raf = 0, lastTime = 0;
+const canvas = $("gameCanvas"), ctx = canvas.getContext("2d");
+const W = canvas.width, H = canvas.height;
+const input = {left:false,right:false,jump:false};
+let world, player, cameraX = 0, falls = 0, levelCoins = 0, collected = new Set(), particles = [];
+const stages = [
+ {name:"Tutorial",world:"Getting Started",width:1500,spawn:[65,390],goal:1390,platforms:[[0,480,360],[410,480,280],[760,480,300],[1130,480,370],[310,405,105],[500,350,105],[670,405,100],[880,365,105],[1040,410,105],[1220,355,100]],spikes:[[455,460,86,20],[810,460,72,20],[1180,460,72,20]],coinSpots:[[175,430],[350,365],[545,310],[705,365],[930,325],[1090,370],[1280,315]],checkpoint:760,tips:["Use ← and → to move.","Press SPACE to jump over gaps.","Collect coins and reach the portal!"]},
+ {name:"Cloud Steps",world:"Heaven's Heights",width:1700,spawn:[60,390],goal:1590,platforms:[[0,480,320],[390,480,220],[690,480,250],[1030,480,210],[1320,480,380],[280,400,115],[470,345,105],[635,390,100],[835,330,115],[1005,385,100],[1190,330,100],[1420,385,115]],spikes:[[435,460,80,20],[735,460,85,20],[1080,460,75,20],[1355,460,65,20]],coinSpots:[[150,430],[310,355],[515,300],[685,345],[880,285],[1050,340],[1240,285],[1470,340]],checkpoint:1030},
+ {name:"Bouncy Bridges",world:"Heaven's Heights",width:1900,spawn:[60,390],goal:1790,platforms:[[0,480,290],[360,480,190],[660,480,210],[990,480,180],[1280,480,210],[1580,480,320],[260,400,100],[440,350,105],[605,395,100],[790,335,110],[955,390,100],[1140,335,110],[1450,390,100],[1660,345,105]],spikes:[[395,460,75,20],[695,460,72,20],[1025,460,75,20],[1320,460,70,20],[1620,460,70,20]],coinSpots:[[125,430],[295,355],[490,305],[650,350],[840,290],[1005,345],[1190,290],[1500,345],[1710,300]],checkpoint:990},
+ {name:"Rainbow Run",world:"Heaven's Heights",width:2050,spawn:[60,390],goal:1940,platforms:[[0,480,300],[370,480,210],[690,480,180],[980,480,210],[1290,480,190],[1590,480,460],[270,400,100],[450,345,100],[630,390,100],[810,330,100],[1090,385,105],[1235,330,100],[1450,385,100],[1690,345,110],[1840,400,100]],spikes:[[405,460,70,20],[725,460,70,20],[1020,460,70,20],[1330,460,70,20],[1635,460,70,20]],coinSpots:[[140,430],[305,355],[495,300],[675,345],[855,285],[1135,340],[1280,285],[1495,340],[1740,300],[1885,355]],checkpoint:1290}
+];
+function showPanel(id){panels.forEach(p=>$(p).classList.toggle("hidden",p!==id));}
+function updateCoins(){ $("coinPill").textContent="🪙 "+coins+" coins"; $("coinHud").textContent="🪙 "+(coins+levelCoins); }
+function save(){localStorage.setItem("obbyverseCoins",String(coins));localStorage.setItem("obbyverseUnlocked",String(unlocked));}
+function renderLevelGrid(){
+ const grid=$("levelGrid");grid.innerHTML="";
+ const entries=[{name:"Tutorial",idx:0},...Array.from({length:20},(_,i)=>({name:"Level "+(i+1),idx:i+1}))];
+ entries.forEach(e=>{
+  const playable=e.idx<stages.length,open=e.idx<=unlocked;
+  const b=document.createElement("button");b.className="level-card "+(open&&playable?"open":"");b.disabled=!open||!playable;
+  b.innerHTML="<b>"+(e.idx===0?"🎓":e.idx)+"</b><small>"+e.name+(playable?"": " · SOON")+"</small>";
+  if(open&&playable)b.addEventListener("click",()=>startStage(e.idx));
+  grid.appendChild(b);
+ });
+}
+function showMessage(title,text,emoji,buttons){
+ $("messageTitle").textContent=title;$("messageText").textContent=text;$("messageEmoji").textContent=emoji;
+ const row=$("messageButtons");row.innerHTML="";
+ buttons.forEach(b=>{const el=document.createElement("button");el.className=b.primary?"primary":"secondary";el.textContent=b.label;el.addEventListener("click",()=>{$("message").classList.add("hidden");b.action();});row.appendChild(el);});
+ $("message").classList.remove("hidden");
+}
+function startStage(index){
+ currentStage=index;world=structuredClone(stages[index]);player={x:world.spawn[0],y:world.spawn[1],w:34,h:42,vx:0,vy:0,ground:false,face:1};
+ cameraX=0;falls=0;levelCoins=0;collected=new Set();particles=[];gameRunning=true;
+ $("stageLabel").textContent=(index===0?"🎓 ":"☁️ ")+world.name;
+ $("deathHud").textContent="💫 Falls: 0";updateCoins();showPanel("gameWrap");
+ cancelAnimationFrame(raf);lastTime=performance.now();raf=requestAnimationFrame(loop);
+ if(world.tips){let tip=world.tips[0];showMessage("Welcome to ObbyVerse!",tip,"🎮",[{label:"LET'S GO!",primary:true,action:()=>{}}]);}
+}
+function respawn(){
+ falls++;$("deathHud").textContent="💫 Falls: "+falls;
+ player.x=world.checkpointX||world.spawn[0];player.y=world.checkpointY||world.spawn[1];player.vx=0;player.vy=0;player.ground=false;
+ burst(player.x+player.w/2,player.y+player.h/2,"#ff84b8",12);
+}
+function intersects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+function burst(x,y,color,n){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*5,vy:(Math.random()-.8)*5,life:35,color});}
+function loop(now){
+ if(!gameRunning)return;const dt=Math.min(2,(now-lastTime)/16.67||1);lastTime=now;update(dt);draw();raf=requestAnimationFrame(loop);
+}
+function update(dt){
+ const speed=4.2;
+ if(input.left){player.vx=-speed;player.face=-1;}else if(input.right){player.vx=speed;player.face=1;}else player.vx*=.72;
+ player.x+=player.vx*dt;player.x=Math.max(0,Math.min(world.width-player.w,player.x));
+ const wasGround=player.ground;player.ground=false;
+ if(input.jump&&wasGround){player.vy=-11.7;player.ground=false;burst(player.x+player.w/2,player.y+player.h,"#ffffff",5);}
+ player.vy=Math.min(14,player.vy+.58*dt);const oldBottom=player.y+player.h;player.y+=player.vy*dt;
+ for(const p of world.platforms){
+  const overlap=player.x+player.w>p[0]&&player.x<p[0]+p[2];
+  if(overlap&&player.vy>=0&&oldBottom<=p[1]+7&&player.y+player.h>=p[1]){player.y=p[1]-player.h;player.vy=0;player.ground=true;}
+ }
+ if(player.y>H+100)respawn();
+ for(const s of world.spikes){const hit={x:s[0]+5,y:s[1]-2,w:s[2]-10,h:s[3]+5};if(intersects(player,hit)){respawn();break;}}
+ if(world.checkpoint&&!world.checkpointReached&&player.x+player.w/2>=world.checkpoint){
+  world.checkpointReached=true;world.checkpointX=world.checkpoint;world.checkpointY=world.platforms.find(p=>world.checkpoint>=p[0]&&world.checkpoint<=p[0]+p[2])?.[1]-player.h||world.spawn[1];
+  burst(world.checkpoint,world.checkpointY,"#58dc9b",22);
+  showMessage("Checkpoint reached!","Great! If you fall, you'll come back here.","🚩",[{label:"CONTINUE",primary:true,action:()=>{}}]);
+ }
+ world.coinSpots.forEach((c,i)=>{if(collected.has(i))return;const dx=(player.x+player.w/2)-c[0],dy=(player.y+player.h/2)-c[1];if(dx*dx+dy*dy<28*28){collected.add(i);levelCoins++;burst(c[0],c[1],"#ffd64f",10);updateCoins();}});
+ if(player.x+player.w>=world.goal){completeStage();return;}
+ cameraX=Math.max(0,Math.min(world.width-W,player.x-W*.34));
+ particles=particles.filter(p=>p.life-->0);particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.12;});
+}
+function completeStage(){
+ gameRunning=false;cancelAnimationFrame(raf);coins+=levelCoins;unlocked=Math.max(unlocked,Math.min(stages.length-1,currentStage+1));save();updateCoins();renderLevelGrid();
+ const next=currentStage+1,hasNext=next<stages.length;
+ showMessage("LEVEL COMPLETE!","You collected "+levelCoins+" coins and made it to the portal!","🏆",[
+  ...(hasNext?[{label:"NEXT LEVEL ▶",primary:true,action:()=>startStage(next)}]:[]),
+  {label:"LEVELS",action:()=>{showPanel("levels");}},
+  {label:"MAIN MENU",action:()=>{showPanel("menu");}}
+ ]);
+}
+function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();}
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,"#69d2ff");sky.addColorStop(.72,"#c8f5ff");sky.addColorStop(1,"#f3ffff");ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+ // distant candy-coloured islands
+ for(let i=0;i<7;i++){const x=((i*245-cameraX*.22)%(W+260)+W+260)%(W+260)-100;rounded(x,380+(i%3)*24,180,85,40,["#b6f0db","#c7c5ff","#ffe3a0"][i%3]);rounded(x+20,400+(i%3)*24,140,55,24,["#79d9ba","#9c91ed","#f5c96d"][i%3]);}
+ // clouds
+ for(let i=0;i<8;i++){const x=((i*175-cameraX*.35)%(W+220)+W+220)%(W+220)-100;drawCloud(x,75+(i%3)*72,.7+(i%2)*.18);}
+ // portal glow
+ const gx=world.goal-cameraX;const glow=ctx.createRadialGradient(gx,365,4,gx,365,90);glow.addColorStop(0,"#fff8c8aa");glow.addColorStop(1,"#fff8c800");ctx.fillStyle=glow;ctx.fillRect(gx-100,260,200,220);
+ // platforms
+ for(const p of world.platforms){const x=p[0]-cameraX,y=p[1],w=p[2];if(x+w<-20||x>W+20)continue;rounded(x,y,w,22,8,"#75d69a");rounded(x,y+9,w,17,6,"#a878e9");ctx.fillStyle="#ffffff88";for(let k=12;k<w-8;k+=34){ctx.beginPath();ctx.arc(x+k,y+4,3,0,Math.PI*2);ctx.fill();}}
+ // spikes
+ for(const s of world.spikes){const x=s[0]-cameraX,y=s[1],w=s[2];ctx.fillStyle="#ff709f";for(let k=0;k<w;k+=23){ctx.beginPath();ctx.moveTo(x+k,y+20);ctx.lineTo(x+k+11.5,y-2);ctx.lineTo(x+k+23,y+20);ctx.closePath();ctx.fill();ctx.strokeStyle="#e34f86";ctx.lineWidth=2;ctx.stroke();}}
+ // coins
+ world.coinSpots.forEach((c,i)=>{if(collected.has(i))return;const x=c[0]-cameraX,y=c[1];ctx.fillStyle="#ffcf45";ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#fff4a6";ctx.lineWidth=3;ctx.stroke();ctx.fillStyle="#fff";ctx.font="bold 12px system-ui";ctx.textAlign="center";ctx.fillText("$",x,y+4);});
+ // checkpoint flag
+ if(world.checkpoint){const x=world.checkpoint-cameraX;ctx.fillStyle="#fff";ctx.fillRect(x,395,5,85);ctx.fillStyle=world.checkpointReached?"#4de1a0":"#ff8cbb";ctx.beginPath();ctx.moveTo(x+5,398);ctx.lineTo(x+45,410);ctx.lineTo(x+5,425);ctx.closePath();ctx.fill();}
+ // portal
+ const px=world.goal-cameraX;ctx.save();ctx.shadowColor="#9d7aff";ctx.shadowBlur=25;rounded(px-18,345,38,120,20,"#886cf1");rounded(px-10,354,22,103,14,"#bcefff");ctx.restore();ctx.fillStyle="#fff4a6";ctx.font="bold 15px system-ui";ctx.textAlign="center";ctx.fillText("EXIT",px,333);
+ // player shadow and blob
+ const x=player.x-cameraX,y=player.y;ctx.fillStyle="#557cb544";ctx.beginPath();ctx.ellipse(x+17,y+43,19,5,0,0,Math.PI*2);ctx.fill();
+ rounded(x,y+4,34,38,14,"#ff9dca");rounded(x+4,y+9,26,29,11,"#ffb7d8");ctx.fillStyle="#39416c";ctx.beginPath();ctx.arc(x+12,y+21,2.7,0,Math.PI*2);ctx.arc(x+23,y+21,2.7,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#b94b83";ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+17,y+24,5,.15,Math.PI-.15);ctx.stroke();ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(x+11,y+17,1.2,0,Math.PI*2);ctx.arc(x+22,y+17,1.2,0,Math.PI*2);ctx.fill();
+ // particles
+ particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life/35);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x-cameraX,p.y,3,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;});
+ // progress bar
+ rounded(18,18,200,12,6,"#ffffffaa");rounded(18,18,200*Math.min(1,player.x/world.goal),12,6,"#ffcf55");
+}
+function drawCloud(x,y,s){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.fillStyle="#ffffffcc";ctx.beginPath();ctx.arc(22,18,18,0,Math.PI*2);ctx.arc(43,8,24,0,Math.PI*2);ctx.arc(68,19,18,0,Math.PI*2);ctx.roundRect(14,17,64,22,12);ctx.fill();ctx.restore();}
+function menu(){gameRunning=false;cancelAnimationFrame(raf);showPanel("menu");}
+function setKey(e,value){
+ const k=e.key.toLowerCase();
+ if(["arrowleft","arrowright","arrowup"," ","a","d","w"].includes(k))e.preventDefault();
+ if(k==="arrowleft"||k==="a")input.left=value;
+ if(k==="arrowright"||k==="d")input.right=value;
+ if(k==="arrowup"||k==="w"||k===" ")input.jump=value;
+}
+window.addEventListener("keydown",e=>setKey(e,true));window.addEventListener("keyup",e=>setKey(e,false));
+window.addEventListener("blur",()=>{input.left=input.right=input.jump=false;});
+function bindHold(id,key){const b=$(id);const on=e=>{e.preventDefault();input[key]=true;};const off=e=>{e.preventDefault();input[key]=false;};b.addEventListener("pointerdown",on);["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,off));}
+bindHold("leftBtn","left");bindHold("rightBtn","right");bindHold("jumpBtn","jump");
+$("playBtn").addEventListener("click",()=>startStage(Math.min(unlocked,stages.length-1)));
+$("levelsBtn").addEventListener("click",()=>{renderLevelGrid();showPanel("levels");});
+$("howBtn").addEventListener("click",()=>showPanel("how"));
+$("levelsBack").addEventListener("click",menu);$("howBack").addEventListener("click",menu);$("pauseBtn").addEventListener("click",()=>{menu();});
+$("skipLoad").addEventListener("click",()=>{$("loading").classList.add("hidden");});
+updateCoins();renderLevelGrid();
+if(!localStorage.getItem("obbyverseVisited")){$("loading").classList.remove("hidden");localStorage.setItem("obbyverseVisited","yes");setTimeout(()=>$("loading").classList.add("hidden"),2600);}
+})();
+</script>
+</body>
+</html>
