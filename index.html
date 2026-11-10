@@ -178,7 +178,7 @@ let xp = Number(localStorage.getItem("obbyverseXP") || 0);
 let petBook = JSON.parse(localStorage.getItem("obbyversePets") || "[]");
 let equippedPet = localStorage.getItem("obbyverseEquipped") || "";
 let tickets=Number(localStorage.getItem("obbyverseTickets")||0),totalCoinsCollected=Number(localStorage.getItem("obbyverseCollected")||0),totalWins=Number(localStorage.getItem("obbyverseWins")||0),totalHatches=Number(localStorage.getItem("obbyverseHatches")||0);
-let upgradeLevels=JSON.parse(localStorage.getItem("obbyverseUpgrades")||'{"coin":0,"speed":0,"jump":0}');
+let upgradeLevels={coin:0,speed:0,jump:0,glide:0,air:0,...JSON.parse(localStorage.getItem("obbyverseUpgrades")||"{}")};
 let claimedQuests=JSON.parse(localStorage.getItem("obbyverseClaimed")||"[]");
  let rebirths=Number(localStorage.getItem("obbyverseRebirths")||0),lastDaily=localStorage.getItem("obbyverseDaily")||"",dailyStreak=Number(localStorage.getItem("obbyverseDailyStreak")||0);
  let redeemedCodes=JSON.parse(localStorage.getItem("obbyverseCodes")||"[]"),ownedTrails=JSON.parse(localStorage.getItem("obbyverseTrails")||"[\"none\"]"),equippedTrail=localStorage.getItem("obbyverseTrail")||"none";
@@ -211,7 +211,7 @@ function renderQuests(){
  $("questList").innerHTML="";tasks.forEach(q=>{const done=q.value>=q.target,claimed=claimedQuests.includes(q.id),b=document.createElement("button");b.className="level-card "+(done?"open":"");b.innerHTML="<b>"+(done?"✅ ":"🎯 ")+q.title+"</b><small>"+q.desc+" · "+Math.min(q.value,q.target)+"/"+q.target+"</small><small>"+(claimed?"CLAIMED":done?"Claim "+q.reward+" coins + 1 ticket":"Reward: "+q.reward+" coins + 1 ticket")+"</small>";b.disabled=!done||claimed;b.addEventListener("click",()=>{coins+=q.reward;tickets++;claimedQuests.push(q.id);save();saveProgress();updateCoins();renderQuests();});$("questList").appendChild(b);});
  const achievements=[{id:"ach-first",title:"First Steps",ok:totalWins>=1,desc:"Complete your first level",reward:150},{id:"ach-explorer",title:"Explorer",ok:unlocked>=7,desc:"Unlock 8 levels",reward:300},{id:"ach-pets",title:"Pet Collector",ok:petBook.length>=8,desc:"Discover 8 pets",reward:500},{id:"ach-worlds",title:"World Hopper",ok:unlocked>=36,desc:"Reach the Secret World",reward:1000},{id:"ach-hoarder",title:"Coin Hoarder",ok:totalCoinsCollected>=250,desc:"Collect 250 coins",reward:400},{id:"ach-hatcher",title:"Egg Enthusiast",ok:totalHatches>=20,desc:"Hatch 20 eggs",reward:600},{id:"ach-rebirth",title:"Fresh Start",ok:rebirths>=1,desc:"Complete your first rebirth",reward:750}];$("achievementList").innerHTML="";achievements.forEach(a=>{const claimed=claimedQuests.includes(a.id),d=document.createElement("button");d.className="level-card "+(a.ok?"open":"");d.disabled=!a.ok||claimed;d.innerHTML="<b>"+(claimed?"✅":a.ok?"🏅":"🔒")+" "+a.title+"</b><small>"+a.desc+"</small><small>"+(claimed?"REWARD CLAIMED":a.ok?"Claim "+a.reward+" coins + 1 ticket": "Reward: "+a.reward+" coins + 1 ticket")+"</small>";d.addEventListener("click",()=>{if(!a.ok||claimed)return;coins+=a.reward;tickets++;claimedQuests.push(a.id);save();saveProgress();updateCoins();renderQuests();});$("achievementList").appendChild(d);});
 }
-function renderUpgrades(){const items=[{id:"coin",name:"Coin Magnet",desc:"More coins per pickup · +2% each level",base:650,max:10},{id:"speed",name:"Speed Shoes",desc:"A small movement boost · +2% each level",base:1200,max:3},{id:"jump",name:"Jump Boost",desc:"A gentle jump boost · +0.22 each level",base:1500,max:3}];$("upgradeList").innerHTML="";items.forEach(u=>{const lv=upgradeLevels[u.id]||0,cost=u.base*(lv+1),b=document.createElement("button");b.className="level-card "+(lv?"open":"");b.disabled=lv>=u.max||coins<cost;b.innerHTML="<b>⬆️ "+u.name+"</b><small>"+u.desc+"</small><small>Level "+lv+"/"+u.max+" · "+(lv>=u.max?"MAXED":cost.toLocaleString()+" coins")+"</small>";b.addEventListener("click",()=>{if(coins<cost||lv>=u.max)return;coins-=cost;upgradeLevels[u.id]=lv+1;save();saveProgress();updateCoins();renderUpgrades();});$("upgradeList").appendChild(b);});}
+function renderUpgrades(){const items=[{id:"coin",name:"Coin Magnet",desc:"More coins per pickup · +2% each level",base:650,max:10},{id:"speed",name:"Speed Shoes",desc:"A small movement boost · +2% each level",base:1200,max:3},{id:"jump",name:"Jump Boost",desc:"A gentle jump boost · +0.22 each level",base:1500,max:3},{id:"glide",name:"Cloud Glide",desc:"Fall more slowly for easier landings · +7% each level",base:1800,max:4},{id:"air",name:"Air Control",desc:"Steer more easily while airborne · +6% each level",base:1400,max:5}];$("upgradeList").innerHTML="";items.forEach(u=>{const lv=upgradeLevels[u.id]||0,cost=Math.round(u.base*Math.pow(1.55,lv)),b=document.createElement("button");b.className="level-card "+(lv?"open":"");b.disabled=lv>=u.max||coins<cost;b.innerHTML="<b>⬆️ "+u.name+"</b><small>"+u.desc+"</small><small>Level "+lv+"/"+u.max+" · "+(lv>=u.max?"MAXED":cost.toLocaleString()+" coins")+"</small>";b.addEventListener("click",()=>{if(coins<cost||lv>=u.max)return;coins-=cost;upgradeLevels[u.id]=lv+1;save();saveProgress();updateCoins();renderUpgrades();});$("upgradeList").appendChild(b);});}
 function doSpin(){if(tickets<1){$("spinResult").textContent="No tickets yet — finish levels or claim quests!";return;}tickets--;const prizes=[100,150,250,400,600,1000,2000],prize=prizes[Math.floor(Math.random()*prizes.length)];coins+=prize;save();saveProgress();updateCoins();$("ticketCount").textContent="You have "+tickets+" tickets.";$("spinResult").textContent="🎉 You won "+prize+" coins!";}
 
 function todayKey(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
@@ -320,9 +320,10 @@ function showMessage(title,text,emoji,buttons){
  buttons.forEach(b=>{const el=document.createElement("button");el.className=b.primary?"primary":"secondary";el.textContent=b.label;el.addEventListener("click",()=>{$("message").classList.add("hidden");b.action();});row.appendChild(el);});
  $("message").classList.remove("hidden");
 }
+function addFriendlySteppingStones(platforms){const sorted=platforms.slice().sort((a,b)=>a[0]-b[0]),extra=[];for(let i=0;i<sorted.length-1;i++){const a=sorted[i],b=sorted[i+1],gap=b[0]-(a[0]+a[2]),rise=Math.abs(a[1]-b[1]);if(gap>105&&gap<255&&rise<=115){const count=gap>175?2:1;for(let j=1;j<=count;j++){const x=a[0]+a[2]+gap*j/(count+1)-48,y=Math.round(a[1]+(b[1]-a[1])*j/(count+1)+8);extra.push([x,y,96]);}}}return platforms.concat(extra);}
 function startStage(index){
  currentStage=index;stageStartedAt=performance.now();world=structuredClone(stages[index]);player={x:world.spawn[0],y:world.spawn[1],w:34,h:42,vx:0,vy:0,ground:false,face:1};
- cameraX=0;falls=0;levelCoins=0;collected=new Set();particles=[];gameRunning=true;
+ world.platforms=addFriendlySteppingStones(world.platforms);cameraX=0;falls=0;levelCoins=0;collected=new Set();particles=[];gameRunning=true;
  const icons={inferno:"🌋",frozen:"❄️",void:"🌌",ancient:"🏛️",ascension:"⚡",prism:"🌈",secret:"👑"};$("stageLabel").textContent=(index===0?"🎓 ":(icons[world.theme]||"☁️ ")) + world.name;
  $("deathHud").textContent="💫 Falls: 0";$("timerHud").textContent="⏱️ 0.0s";lastTimerPaint=0;updateCoins();showPanel("gameWrap");
  cancelAnimationFrame(raf);lastTime=performance.now();draw();raf=requestAnimationFrame(loop);
@@ -341,12 +342,12 @@ function loop(now){
  if(!gameRunning)return;const dt=Math.min(2,(now-lastTime)/16.67||1);lastTime=now;if(now-lastTimerPaint>100){$("timerHud").textContent="⏱️ "+((now-stageStartedAt)/1000).toFixed(1)+"s";lastTimerPaint=now;}update(dt);draw();raf=requestAnimationFrame(loop);
 }
 function update(dt){
- const speed=3.9*(1+Math.min(5,activePetBoost.speed||0)/100)*(1+Math.min(3,upgradeLevels.speed||0)*.02);
+ const speed=4.25*(1+Math.min(5,activePetBoost.speed||0)/100)*(1+Math.min(3,upgradeLevels.speed||0)*.02)*(player.ground?1:1+Math.min(5,upgradeLevels.air||0)*.06);
  if(input.left){player.vx=-speed;player.face=-1;}else if(input.right){player.vx=speed;player.face=1;}else player.vx*=.72;
  player.x+=player.vx*dt;player.x=Math.max(0,Math.min(world.width-player.w,player.x));
  const wasGround=player.ground;player.ground=false;
- if(input.jump&&wasGround){player.vy=-11.7-Math.min(3,upgradeLevels.jump||0)*.22;player.ground=false;burst(player.x+player.w/2,player.y+player.h,"#ffffff",5);}
- player.vy=Math.min(14,player.vy+.58*dt);const oldBottom=player.y+player.h;player.y+=player.vy*dt;
+ if(wasGround)player.coyote=8;else player.coyote=Math.max(0,(player.coyote||0)-dt);if(input.jump&&player.coyote>0){player.vy=-12.2-Math.min(3,upgradeLevels.jump||0)*.22;player.ground=false;player.coyote=0;burst(player.x+player.w/2,player.y+player.h,"#ffffff",5);}
+ const gravity=.52*(1-Math.min(4,upgradeLevels.glide||0)*.07);player.vy=Math.min(14,player.vy+gravity*dt);const oldBottom=player.y+player.h;player.y+=player.vy*dt;
  for(const p of world.platforms){
   const overlap=player.x+player.w>p[0]&&player.x<p[0]+p[2];
   if(overlap&&player.vy>=0&&oldBottom<=p[1]+7&&player.y+player.h>=p[1]){player.y=p[1]-player.h;player.vy=0;player.ground=true;}
