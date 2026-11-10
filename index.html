@@ -27,7 +27,7 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
 .secondary{background:linear-gradient(180deg,#b9efff,#7fd7fb);box-shadow:0 6px 0 #4da5d4;padding:12px 20px;border-radius:16px}
 .purple{background:linear-gradient(180deg,#b9b1ff,#877af5);box-shadow:0 6px 0 #5c51c8;color:white;padding:12px 20px;border-radius:16px}
 .small{font-size:14px;padding:9px 14px;border-radius:13px}
-.buttonrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.buttonrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}.main-actions{max-width:620px;margin:18px auto 4px}.main-actions button{min-width:135px}
 .world-banner{border-radius:22px;padding:22px;margin:16px 0;background:linear-gradient(120deg,#90e6ff,#b6f4dd 50%,#ffe48b);box-shadow:inset 0 -5px 0 #5aabd433;position:relative;overflow:hidden}
 .world-banner:after{content:"☁️   ✨   ☁️";position:absolute;right:18px;top:14px;font-size:25px;opacity:.8}
 .world-banner strong{display:block;font-size:25px;color:#fff;text-shadow:0 2px 0 #65a7c9}
@@ -74,17 +74,29 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
       <h1>OBBYVERSE</h1>
       <p class="subtitle">Every world has a challenge. Every challenge has a legend.</p>
       <div class="world-banner"><strong>HEAVEN'S HEIGHTS</strong><span>Your first big adventure awaits!</span></div>
-      <div class="buttonrow">
+      <div class="buttonrow main-actions">
         <button class="primary" id="playBtn">▶ PLAY</button>
-        <button class="secondary" id="dailyBtn">🎁 DAILY REWARD</button><button class="purple" id="codesBtn">🎟️ REDEEM CODE</button><button class="secondary" id="rebirthBtn">🌟 REBIRTH</button><button class="purple" id="trailsBtn">✨ TRAILS</button><button class="secondary" id="statsBtn">📊 STATS</button><button class="purple" id="settingsBtn">⚙️ SETTINGS</button>
         <button class="secondary" id="levelsBtn">🗺️ LEVELS</button>
-        <button class="purple" id="howBtn">❔ HOW TO PLAY</button>
-      </div>
-      <div class="buttonrow">
-        <button class="primary" id="shopBtn">🥚 EGG SHOP</button>
-        <button class="secondary" id="petsBtn">🐾 MY PETS</button><button class="purple" id="questsBtn">🏆 QUESTS</button><button class="secondary" id="spinBtn">🎡 LUCKY SPIN</button><button class="primary" id="upgradesBtn">⬆️ UPGRADES</button>
+        <button class="purple" id="shopBtn">🥚 EGG SHOP</button>
+        <button class="secondary" id="moreBtn">☰ MORE</button>
       </div>
       <p class="note" style="margin-top:22px">Explore 8 colourful worlds, hatch pets and conquer every obby!</p>
+    </section>
+    <section class="panel hidden" id="more">
+      <h2>☰ More</h2><p class="subtitle">Extras, rewards and game settings.</p>
+      <div class="level-grid">
+        <button class="level-card" id="petsBtn"><b>🐾</b><small>MY PETS</small></button>
+        <button class="level-card" id="questsBtn"><b>🏆</b><small>QUESTS</small></button>
+        <button class="level-card" id="upgradesBtn"><b>⬆️</b><small>UPGRADES</small></button>
+        <button class="level-card" id="spinBtn"><b>🎡</b><small>LUCKY SPIN</small></button>
+        <button class="level-card" id="dailyBtn"><b>🎁</b><small>DAILY REWARD</small></button>
+        <button class="level-card" id="codesBtn"><b>🎟️</b><small>REDEEM CODE</small></button>
+        <button class="level-card" id="rebirthBtn"><b>🌟</b><small>REBIRTH</small></button>
+        <button class="level-card" id="trailsBtn"><b>✨</b><small>TRAILS</small></button>
+        <button class="level-card" id="statsBtn"><b>📊</b><small>STATS</small></button>
+        <button class="level-card" id="settingsBtn"><b>⚙️</b><small>SETTINGS</small></button>
+        <button class="level-card" id="howBtn"><b>❔</b><small>HOW TO PLAY</small></button>
+      </div><div class="buttonrow"><button class="secondary" id="moreBack">← BACK</button></div>
     </section>
     <section class="panel hidden" id="levels">
       <h2>🗺️ Choose a level</h2>
@@ -170,7 +182,7 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
 (() => {
 "use strict";
 const $ = id => document.getElementById(id);
-const panels = ["menu","levels","shop","pets","quests","spin","upgrades","daily","codes","rebirth","trails","stats","settings","how","gameWrap"];
+const panels = ["menu","more","levels","shop","pets","quests","spin","upgrades","daily","codes","rebirth","trails","stats","settings","how","gameWrap"];
 let coins = Number(localStorage.getItem("obbyverseCoins") || 0);
 let unlocked = Math.max(0, Number(localStorage.getItem("obbyverseUnlocked") || 0));
 let currentStage = 0, gameRunning = false, raf = 0, lastTime = 0;
@@ -320,7 +332,7 @@ function showMessage(title,text,emoji,buttons){
  buttons.forEach(b=>{const el=document.createElement("button");el.className=b.primary?"primary":"secondary";el.textContent=b.label;el.addEventListener("click",()=>{$("message").classList.add("hidden");b.action();});row.appendChild(el);});
  $("message").classList.remove("hidden");
 }
-function addFriendlySteppingStones(platforms){const sorted=platforms.slice().sort((a,b)=>a[0]-b[0]),extra=[];for(let i=0;i<sorted.length-1;i++){const a=sorted[i],b=sorted[i+1],gap=b[0]-(a[0]+a[2]),rise=Math.abs(a[1]-b[1]);if(gap>105&&gap<255&&rise<=115){const count=gap>175?2:1;for(let j=1;j<=count;j++){const x=a[0]+a[2]+gap*j/(count+1)-48,y=Math.round(a[1]+(b[1]-a[1])*j/(count+1)+8);extra.push([x,y,96]);}}}return platforms.concat(extra);}
+function addFriendlySteppingStones(platforms){const sorted=platforms.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]),extra=[];for(let i=0;i<sorted.length-1;i++){const a=sorted[i],b=sorted[i+1],gap=b[0]-(a[0]+a[2]),rise=b[1]-a[1];if(gap>72&&gap<520){const count=Math.max(1,Math.ceil(gap/105)-1,Math.ceil(Math.abs(rise)/72)-1);for(let j=1;j<=count;j++){const t=j/(count+1),x=Math.round(a[0]+a[2]+gap*t-46),y=Math.round(a[1]+rise*t+Math.max(-10,Math.min(10,rise*.08)));extra.push([x,y,92]);}}}return platforms.concat(extra);}
 function startStage(index){
  currentStage=index;stageStartedAt=performance.now();world=structuredClone(stages[index]);player={x:world.spawn[0],y:world.spawn[1],w:34,h:42,vx:0,vy:0,ground:false,face:1};
  world.platforms=addFriendlySteppingStones(world.platforms);cameraX=0;falls=0;levelCoins=0;collected=new Set();particles=[];gameRunning=true;
@@ -422,6 +434,7 @@ $("dailyBtn").addEventListener("click",()=>{refreshDaily();$("dailyResult").text
 $("questsBtn").addEventListener("click",()=>{renderQuests();showPanel("quests");});$("spinBtn").addEventListener("click",()=>{$("ticketCount").textContent="You have "+tickets+" tickets.";$("spinResult").textContent="";showPanel("spin");});$("upgradesBtn").addEventListener("click",()=>{renderUpgrades();showPanel("upgrades");});$("spinNow").addEventListener("click",doSpin);$("questsBack").addEventListener("click",menu);$("spinBack").addEventListener("click",menu);$("upgradesBack").addEventListener("click",menu);
 $("petsBtn").addEventListener("click",()=>{renderPets();showPanel("pets");});
 $("shopBack").addEventListener("click",menu);$("petsBack").addEventListener("click",menu);
+$("moreBtn").addEventListener("click",()=>showPanel("more"));$("moreBack").addEventListener("click",menu);
 $("playBtn").addEventListener("click",()=>startStage(Math.min(unlocked,stages.length-1)));
 $("levelsBtn").addEventListener("click",()=>{renderLevelGrid();showPanel("levels");});
 $("howBtn").addEventListener("click",()=>showPanel("how"));
