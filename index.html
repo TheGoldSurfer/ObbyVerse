@@ -39,7 +39,7 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
 .level-card b{display:block;font-size:25px;color:#655bdb}
 .level-card small{display:block;color:#7180a5;margin-top:3px}
 .note{font-size:13px;color:#7e87a7;font-weight:700;line-height:1.5}
-#gameWrap{width:100%;display:none}
+#gameWrap{width:100%}
 .gamebar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:0 0 10px}
 .hud{background:#ffffffdf;padding:8px 13px;border-radius:999px;font-weight:900;box-shadow:0 3px 0 #8bbad866}
 #gameCanvas{display:block;width:100%;height:auto;aspect-ratio:16/9;border:5px solid white;border-radius:22px;box-shadow:0 10px 0 #6a8abb55;background:#8be0ff;touch-action:none}
@@ -96,7 +96,7 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
       <p class="note">On a phone or tablet, use the on-screen ◀ ▶ and JUMP buttons. Falling or touching spikes sends you back to your latest checkpoint.</p>
       <div class="buttonrow"><button class="secondary" id="howBack">← BACK</button></div>
     </section>
-    <section id="gameWrap">
+    <section id="gameWrap" class="hidden">
       <div class="gamebar">
         <span class="hud" id="stageLabel">☁️ Tutorial</span>
         <span class="hud" id="coinHud">🪙 0</span>
