@@ -168,10 +168,10 @@ let xp = Number(localStorage.getItem("obbyverseXP") || 0);
 let petBook = JSON.parse(localStorage.getItem("obbyversePets") || "[]");
 let equippedPet = localStorage.getItem("obbyverseEquipped") || "";
 let activePetBoost = {coins:0,xp:0,speed:0};
-const rarityOdds = [{name:"Common",chance:44.9955},{name:"Uncommon",chance:26.9973},{name:"Rare",chance:15.9984},{name:"Epic",chance:7.9992},{name:"Legendary",chance:3.4997},{name:"Mythic",chance:.4999},{name:"Secret",chance:.01}];
+const rarityOdds = [{name:"Common",chance:44.8955},{name:"Uncommon",chance:26.9973},{name:"Rare",chance:15.9984},{name:"Epic",chance:7.9992},{name:"Legendary",chance:3.4997},{name:"Mythic",chance:.4999},{name:"Secret",chance:.01},{name:"Divine",chance:.1}];
 const boostByRarity = {
  Common:{coins:5,xp:0,speed:0},Uncommon:{coins:7,xp:0,speed:0},Rare:{coins:0,xp:5,speed:0},
- Epic:{coins:5,xp:5,speed:0},Legendary:{coins:10,xp:0,speed:5},Mythic:{coins:10,xp:10,speed:5},Secret:{coins:15,xp:15,speed:15}
+ Epic:{coins:5,xp:5,speed:0},Legendary:{coins:10,xp:0,speed:5},Mythic:{coins:10,xp:10,speed:5},Secret:{coins:15,xp:15,speed:15},Divine:{coins:50,xp:50,speed:50}
 };
 const eggWorlds = [
  {name:"Heaven Egg",emoji:"☁️",price:250,pets:["Cloud Bunny","Little Cherub","Sky Fox","Halo Griffin","Sun Pegasus","Seraph Dragon","Heavenly Secret"]},
@@ -180,14 +180,15 @@ const eggWorlds = [
  {name:"Void Egg",emoji:"🌌",price:15000,pets:["Gloom Bat","Star Slime","Moon Moth","Nebula Fox","Comet Dragon","Void Reaper","Cosmic Unknown"]},
  {name:"Ancient Egg",emoji:"🏛️",price:60000,pets:["Pebble Buddy","Rune Beetle","Temple Gecko","Relic Hound","Golden Sphinx","Titan Colossus","Lost Emperor"]},
  {name:"Ascension Egg",emoji:"⚡",price:250000,pets:["Tiny Spark","Bolt Bunny","Storm Cub","Thunder Hawk","Tempest Lion","Skybreaker Dragon","Storm Sovereign"]},
- {name:"Prism Egg",emoji:"🌈",price:1000000,pets:["Prism Puff","Rainbow Chick","Gem Kitty","Spectrum Deer","Crystal Unicorn","Prismatic Dragon","Rainbow Enigma"]}
+ {name:"Prism Egg",emoji:"🌈",price:1000000,pets:["Prism Puff","Rainbow Chick","Gem Kitty","Spectrum Deer","Crystal Unicorn","Prismatic Dragon","Rainbow Enigma","Prism Deity"]},
+ {name:"Secret Egg",emoji:"👑",price:2500000,pets:["Mystery Blob","Hidden Fox","Shadow Sprite","Secret Knight","Phantom Wolf","Mystic Dragon","Unknown One","Owner's Guardian"]}
 ];
 function petData(id){return petBook.find(p=>p.id===id);}
 function savePets(){localStorage.setItem("obbyversePets",JSON.stringify(petBook));localStorage.setItem("obbyverseEquipped",equippedPet);localStorage.setItem("obbyverseXP",String(xp));}
 function boostsForPet(p){return p?boostByRarity[p.rarity]:{coins:0,xp:0,speed:0};}
 function updateCoins(){ $("coinPill").textContent="🪙 "+coins+" coins · ⭐ "+xp+" XP"; $("coinHud").textContent="🪙 "+(coins+levelCoins); }
 function renderEggShop(){
- const grid=$("eggShop");grid.innerHTML="";const required=[0,4,7,10,13,16,19];
+ const grid=$("eggShop");grid.innerHTML="";const required=[0,4,7,10,13,16,19,22];
  eggWorlds.forEach((egg,i)=>{const open=unlocked>=required[i];const b=document.createElement("button");b.className="level-card "+(open?"open":"");b.disabled=!open;b.innerHTML="<b>"+egg.emoji+" "+egg.name+"</b><small>"+(open?"🪙 "+egg.price.toLocaleString()+" · 7 pets":"🔒 Unlock "+stages[required[i]].name)+"</small>";if(open)b.addEventListener("click",()=>hatchEgg(i));grid.appendChild(b);});
 }
 function renderPets(){
@@ -204,7 +205,7 @@ function hatchEgg(index){
  const id="w"+index+"-"+petIndex;
  let pet=petBook.find(p=>p.id===id);
  const isNew=!pet;
- if(!pet){pet={id,name:egg.pets[petIndex],emoji:["🐾","🐣","🦊","🦅","🐉","✨","👑"][petIndex],rarity:rarity.name,boost:boostByRarity[rarity.name]};petBook.push(pet);}
+ if(!pet){pet={id,name:egg.pets[petIndex],emoji:["🐾","🐣","🦊","🦅","🐉","✨","👑","🌟"][petIndex],rarity:rarity.name,boost:boostByRarity[rarity.name]};petBook.push(pet);}
  equippedPet=id;activePetBoost=boostsForPet(pet);savePets();renderPets();
  $("messageEmoji").innerHTML='<div class="hatch-egg">'+egg.emoji+'</div>';
  $("messageTitle").textContent="Hatching "+egg.name+"...";
@@ -230,7 +231,8 @@ const worldSpecs=[
 {name:"Void",theme:"void",width:2050,ground:"#7965bd",top:"#c0a4ff",hazard:"#ff79b7",sky:["#403b83","#7970c9","#d8caff"]},
 {name:"Ancient",theme:"ancient",width:2000,ground:"#c99a58",top:"#f4d28a",hazard:"#9b6544",sky:["#f5cf83","#ffe9b5","#fff7d9"]},
 {name:"Ascension",theme:"ascension",width:2100,ground:"#73c8e8",top:"#b5f5ff",hazard:"#8874ed",sky:["#7bc9ff","#c7eaff","#fff3ff"]},
-{name:"Prism",theme:"prism",width:2200,ground:"#b68bfa",top:"#ffcae8",hazard:"#ff8bba",sky:["#ffb8df","#c7c5ff","#a8ecff"]}
+{name:"Prism",theme:"prism",width:2200,ground:"#b68bfa",top:"#ffcae8",hazard:"#ff8bba",sky:["#ffb8df","#c7c5ff","#a8ecff"]},
+{name:"Secret World",theme:"secret",width:2350,ground:"#7162a8",top:"#d9c8ff",hazard:"#ffdc65",sky:["#29224e","#6755a8","#e0cfff"]}
 ];
 function makeWorldStage(spec,levelNo){
  const width=spec.width+(levelNo-1)*130,platforms=[[0,480,300]],spikes=[],coinSpots=[[130,430]];
@@ -274,7 +276,7 @@ function showMessage(title,text,emoji,buttons){
 function startStage(index){
  currentStage=index;world=structuredClone(stages[index]);player={x:world.spawn[0],y:world.spawn[1],w:34,h:42,vx:0,vy:0,ground:false,face:1};
  cameraX=0;falls=0;levelCoins=0;collected=new Set();particles=[];gameRunning=true;
- const icons={inferno:"🌋",frozen:"❄️",void:"🌌",ancient:"🏛️",ascension:"⚡",prism:"🌈"};$("stageLabel").textContent=(index===0?"🎓 ":(icons[world.theme]||"☁️ ")) + world.name;
+ const icons={inferno:"🌋",frozen:"❄️",void:"🌌",ancient:"🏛️",ascension:"⚡",prism:"🌈",secret:"👑"};$("stageLabel").textContent=(index===0?"🎓 ":(icons[world.theme]||"☁️ ")) + world.name;
  $("deathHud").textContent="💫 Falls: 0";updateCoins();showPanel("gameWrap");
  cancelAnimationFrame(raf);lastTime=performance.now();draw();raf=requestAnimationFrame(loop);
  if(world.tips){let tip=world.tips[0];showMessage("Welcome to ObbyVerse!",tip,"🎮",[{label:"LET'S GO!",primary:true,action:()=>{}}]);}
