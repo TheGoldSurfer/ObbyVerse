@@ -256,7 +256,7 @@ function makeWorldStage(spec,levelNo){
 }
 worldSpecs.forEach(spec=>{for(let level=1;level<=3;level++)stages.push(makeWorldStage(spec,level));});
 function showPanel(id){panels.forEach(p=>$(p).classList.toggle("hidden",p!==id));}
-function updateCoins(){ $("coinPill").textContent="🪙 "+coins+" coins"; $("coinHud").textContent="🪙 "+(coins+levelCoins); }
+function updateCoins(){ $("coinPill").textContent="🪙 "+coins+" coins · ⭐ "+xp+" XP"; $("coinHud").textContent="🪙 "+(coins+levelCoins); }
 function save(){localStorage.setItem("obbyverseCoins",String(coins));localStorage.setItem("obbyverseUnlocked",String(unlocked));}
 function renderLevelGrid(){
  const grid=$("levelGrid");grid.innerHTML="";
