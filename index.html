@@ -87,10 +87,10 @@ h2{font-size:clamp(24px,4vw,34px);margin:0 0 8px}
     </section>
     <section class="panel hidden" id="levels">
       <h2>🗺️ Choose a level</h2>
-      <p class="subtitle">Start with the tutorial, then explore Heaven's Heights.</p>
-      <div class="world-banner"><strong>HEAVEN'S HEIGHTS</strong><span>World 1 · 20 planned levels</span></div>
+      <p class="subtitle">Choose any unlocked obby. Beat levels to unlock the next adventure.</p>
+      <div class="world-banner"><strong>HEAVEN'S HEIGHTS</strong><span>7 colourful worlds · 3 levels each</span></div>
       <div class="level-grid" id="levelGrid"></div>
-      <p class="note">The first three Heaven's Heights levels are playable in this prototype. More levels will be added as we build ObbyVerse.</p>
+      <p class="note">Complete levels to unlock more worlds, eggs and pets.</p>
       <div class="buttonrow"><button class="secondary" id="levelsBack">← BACK</button></div>
     </section>
     <section class="panel hidden" id="shop">
@@ -238,7 +238,10 @@ function makeWorldStage(spec,levelNo){
  for(let i=1;i<count;i++){
   const x=170+i*145+(i%2)*25;
   const ys=levelNo===1?[410,360,400,345]:levelNo===2?[390,330,405,350,370]:[350,405,325,385,340];
-  const y=ys[i%ys.length];
+  let y=ys[i%ys.length];
+  // A gentle two-step opening keeps the first jump fair in every generated obby.
+  if(i===1)y=410;
+  if(i===2)y=360;
   platforms.push([x,y,105+(i%3)*12]);
   if(i%2===0)spikes.push([x+115,460,42+(i%2)*12,20]);
   coinSpots.push([x+48,y-38]);
@@ -302,7 +305,6 @@ function update(dt){
  if(world.checkpoint&&!world.checkpointReached&&player.x+player.w/2>=world.checkpoint){
   world.checkpointReached=true;world.checkpointX=world.checkpoint;world.checkpointY=world.platforms.find(p=>world.checkpoint>=p[0]&&world.checkpoint<=p[0]+p[2])?.[1]-player.h||world.spawn[1];
   burst(world.checkpoint,world.checkpointY,"#58dc9b",22);
-  showMessage("Checkpoint reached!","Great! If you fall, you'll come back here.","🚩",[{label:"CONTINUE",primary:true,action:()=>{}}]);
  }
  world.coinSpots.forEach((c,i)=>{if(collected.has(i))return;const dx=(player.x+player.w/2)-c[0],dy=(player.y+player.h/2)-c[1];if(dx*dx+dy*dy<28*28){collected.add(i);levelCoins+=1+(activePetBoost.coins||0)/100;xp+=1+(activePetBoost.xp||0)/100;localStorage.setItem("obbyverseXP",String(xp));burst(c[0],c[1],"#ffd64f",10);updateCoins();}});
  if(player.x+player.w>=world.goal){completeStage();return;}
