@@ -210,7 +210,7 @@ function renderEggShop(){
 function renderPets(){
  const grid=$("petGrid");grid.innerHTML="";$("petSummary").textContent=petBook.length+" / 64 pets discovered · "+(equippedPet?"1 equipped":"No pet equipped");
  if(!petBook.length){grid.innerHTML='<div class="pet-card">🥚<b>No pets yet!</b><small>Visit the Egg Shop to hatch your first pet.</small></div>';}
- petBook.forEach(p=>{const b=document.createElement("button");b.className="pet-card rarity-"+p.rarity.toLowerCase();b.innerHTML="<b>"+p.emoji+" "+p.name+"</b><small>"+p.rarity+" · +"+p.boost.coins+"% coins · +"+p.boost.xp+"% XP · +"+p.boost.speed+"% speed</small><small>"+(p.id===equippedPet?"✓ EQUIPPED":"Tap to equip")+"</small>";b.addEventListener("click",()=>{equippedPet=p.id;activePetBoost=boostsForPet(p);savePets();renderPets();});grid.appendChild(b);});
+ petBook.forEach(p=>{const b=document.createElement("button");b.className="pet-card rarity-"+p.rarity.toLowerCase();b.innerHTML="<b>"+p.emoji+" "+p.name+"</b><small>"+p.rarity+" · Owned: "+(p.count||1)+"</small><small>+"+p.boost.coins+"% coins · +"+p.boost.xp+"% XP · +"+p.boost.speed+"% speed</small><small>"+(p.id===equippedPet?"✓ EQUIPPED · Tap to unequip":"Tap to equip")+"</small>";b.addEventListener("click",()=>{equippedPet=equippedPet===p.id?"":p.id;activePetBoost=boostsForPet(petData(equippedPet));savePets();renderPets();});grid.appendChild(b);});
  const p=petData(equippedPet);$("equippedPet").textContent=p?"Equipped: "+p.name+" ("+p.rarity+") — boosts apply while playing.":"No pet equipped. Tap a pet to equip it.";
 }
 function hatchEgg(index){
